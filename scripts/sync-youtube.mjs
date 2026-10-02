@@ -11,8 +11,12 @@
  *    video is always on the site. The content agent can enrich it later (topics, context, story).
  * 5. Downloads Shorts thumbnails to public/media/yt/ so the site never hot-links images from Google.
  *
+ * Only uploads published on or after SYNC_SINCE are considered. Older channel content (e.g. live streams from
+ * 2016) is never pulled onto the site automatically – if something old should appear, add it as a curated entry.
+ *
  * Runs every few hours in GitHub Actions. Offline/blocked network → exits 0 and changes nothing.
  *   YOUTUBE_FEED_FILE=path.xml  use a local feed file (tests)
+ *   YOUTUBE_SYNC_SINCE=YYYY-MM-DD  override the cut-off date
  *   --dry                       print what would change
  */
 import fs from 'node:fs';
@@ -28,6 +32,11 @@ const VIDEOS_DIR = path.join(ROOT, 'src/content/videos');
 const FEED_JSON = path.join(ROOT, 'src/data/youtube-feed.json');
 const THUMBS_DIR = path.join(ROOT, 'public/media/yt');
 const dry = process.argv.includes('--dry');
+/** Start of the current channel era. Nothing published before this date is synced. */
+export const SYNC_SINCE = process.env.YOUTUBE_SYNC_SINCE || '2026-09-01';
+
+/** Feed entries that may be synced (have an id and are not older than SYNC_SINCE). Exported for tests. */
+export const syncable = (videos, since = SYNC_SINCE) => videos.filter((v) => v.id && String(v.published ?? '').slice(0, 10) >= since);
 
 const log = (...a) => console.log('[sync-youtube]', ...a);
 
@@ -103,8 +112,9 @@ async function main() {
     log(`Feed nicht erreichbar (${err.message}) – keine Änderungen.`);
     return;
   }
-  const feed = parseFeed(xml).filter((v) => v.id);
-  log(`${feed.length} Einträge im Feed.`);
+  const all = parseFeed(xml);
+  const feed = syncable(all);
+  log(`${all.length} Einträge im Feed, ${feed.length} seit ${SYNC_SINCE}.`);
 
   const json = { channelId: CHANNEL_ID, fetchedAt: new Date().toISOString(), videos: feed.slice(0, 30) };
   const before = fs.existsSync(FEED_JSON) ? JSON.parse(fs.readFileSync(FEED_JSON, 'utf8')) : { videos: [] };
