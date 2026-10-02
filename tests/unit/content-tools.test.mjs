@@ -6,7 +6,7 @@ import path from 'node:path';
 import { classifyRisk, suggestTopics } from '../../scripts/content/assess.mjs';
 import { verify, findQuote } from '../../scripts/content/verify-claims.mjs';
 import { tokens, slugify, numbersIn, jaccard } from '../../scripts/lib/text.mjs';
-import { parseFeed, matchEntry, guessTopics } from '../../scripts/sync-youtube.mjs';
+import { parseFeed, matchEntry, guessTopics, syncable } from '../../scripts/sync-youtube.mjs';
 
 test('risk classification follows the publishing rules', () => {
   assert.equal(classifyRisk('Heute füttere ich die Kälber, das Wetter ist schön').level, 'low');
@@ -49,4 +49,13 @@ test('YouTube feed parsing and matching', () => {
   assert.ok(matchEntry(feed[0], entries));
   assert.equal(matchEntry(feed[2], entries), null);
   assert.deepEqual(guessTopics('Meine Drohne ist abgestürzt'), ['agrardrohnen']);
+});
+
+test('sync ignores old channel uploads (before the cut-off date)', () => {
+  const videos = [
+    { id: 'old', title: 'Live-Broadcast 2016', published: '2016-12-13T18:00:29+00:00' },
+    { id: 'new', title: 'Neues Video', published: '2026-10-04T15:00:00+00:00' },
+    { id: '', title: 'ohne id', published: '2026-10-04T15:00:00+00:00' },
+  ];
+  assert.deepEqual(syncable(videos, '2026-09-01').map((v) => v.id), ['new']);
 });
