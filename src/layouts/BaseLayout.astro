@@ -124,7 +124,7 @@ const goat = ANALYTICS.provider === 'goatcounter' && ANALYTICS.goatcounterCode;
       <slot />
     </main>
     <Footer />
-    {goat && <script is:inline data-goatcounter={`https://${ANALYTICS.goatcounterCode}.goatcounter.com/count`} async src="//gc.zgo.at/count.js" />}
+    {goat && <script is:inline data-goatcounter={`https://${ANALYTICS.goatcounterCode}.goatcounter.com/count`} async src="/js/count.js" />}
     <script>
       import '../scripts/site.ts';
     </script>
