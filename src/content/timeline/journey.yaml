@@ -1,0 +1,112 @@
+# Der Weg bisher. Nur belegte Stationen; ungenaue Zeitpunkte werden ehrlich beschriftet ("ca.", "Mit 12").
+# date: sortierbar (YYYY, YYYY-MM oder YYYY-MM-DD) · label: Anzeige · chapter: Kapitel der Timeline
+- id: zeitungen
+  date: "2015"
+  label: "Mit 12"
+  title: "Der erste Job: Zeitungen austragen"
+  text: "Mit 12 habe ich angefangen zu arbeiten. Zeitungen austragen. Das Geld, das ich mir in den folgenden Jahren gespart habe, war später mein Startkapital."
+  place: Deutschland
+  chapter: deutschland
+- id: supermarkt
+  date: "2017"
+  label: "Mit 14"
+  title: "Regale einräumen, später Kasse"
+  text: "Mit 14 im Supermarkt: erst Regale einräumen, später teilweise an der Kasse."
+  place: Deutschland
+  chapter: deutschland
+- id: ausbildung
+  date: "2018"
+  label: "2018 – 2021"
+  title: "Ausbildung zum Anlagenmechaniker"
+  text: "Ausbildung als Anlagenmechaniker in einem großen Chemiekonzern. Danach habe ich dort gearbeitet, bis ich gekündigt habe."
+  place: Deutschland
+  chapter: deutschland
+- id: auswandern
+  date: "2022-04"
+  label: "2022"
+  title: "Mit 19 nach Uruguay"
+  text: "Job gekündigt, alles stehen gelassen. Nicht allein, sondern mit meiner Familie. Ohne Spanisch, mit wenig Geld. „Das wird zu hart für dich“, hatten viele gesagt."
+  place: Uruguay
+  chapter: ankommen
+  topics: [auswandern]
+  link: { href: "/stories/mit-19-nach-uruguay/", label: "Die ganze Geschichte" }
+- id: bude
+  date: "2022-05"
+  label: "Die Anfangszeit"
+  title: "Das erste Zuhause: eine Bude"
+  text: "Ein Raum, ein Bett, aufs Klo ging es zu meinen Eltern. Heute lagert dort Hundefutter. Damals war es mein Zuhause."
+  place: Uruguay
+  chapter: ankommen
+  topics: [auswandern, alltag]
+- id: hunde
+  date: "2022-06"
+  label: "Die Anfangszeit"
+  title: "Die ersten Freunde: Leyla und Luna"
+  text: "Ich habe die beiden Schäferhündinnen als Welpen großgezogen. In der Zeit, als ich hier niemanden kannte, waren sie meine einzigen Freunde."
+  place: Uruguay
+  chapter: ankommen
+  image: { src: "../../assets/media/hund-leyla.jpg", alt: "Schäferhündin Leyla schaut auf der Weide in die Kamera." }
+  topics: [alltag]
+- id: bauen
+  date: "2023"
+  label: "Die ersten Jahre"
+  title: "Bauen, bauen, bauen"
+  text: "Ein kleines Haus, das Grundstück, alles selbst. Heute würde ich zuerst schauen, wie ich Geld verdiene – und dann bauen."
+  place: Uruguay
+  chapter: aufbauen
+  topics: [auswandern, rueckschlaege]
+- id: grundstueck
+  date: "2023-06"
+  label: "Die ersten Jahre"
+  title: "Aus einem Dschungel wird Boden"
+  text: "Mein Grundstück war eine ehemalige Zitronenplantage, das Gras höher als ich. Heute ist es guter Boden. Eine Zeit lang standen dort rund 100 Bienenvölker."
+  place: Uruguay
+  chapter: aufbauen
+  image: { src: "../../assets/media/grundstueck-leer.jpg", alt: "Weite Grasfläche mit einem jungen Baum vor einer Baumreihe." }
+  topics: [landwirtschaft]
+- id: vertrieb
+  date: "2022-07"
+  label: "Ab 2022"
+  title: "Remote im B2B-Vertrieb"
+  text: "Neben dem Ankommen habe ich remote im Vertrieb gearbeitet: Telefonakquise, Leadgenerierung, Termine. Irgendwann hatte ich es satt, für jemand anderen zu arbeiten."
+  place: Online
+  chapter: aufbauen
+  topics: [unternehmertum]
+- id: drohne
+  date: "2025"
+  label: "2025"
+  title: "Das Drohnen-Business startet"
+  text: "Eine Agrardrohne mit rund drei Metern Durchmesser, finanziert mit geliehenem Geld. Danach: ein Monat ohne Auftrag, ein Schaden beim ersten Job, zwei Crashs."
+  place: Uruguay
+  chapter: unternehmer
+  image: { src: "../../assets/media/drohne-einsatz-feld.jpg", alt: "Agrardrohne auf einem abgeernteten Feld, dahinter Anhänger und Pick-up." }
+  topics: [agrardrohnen, unternehmertum, rueckschlaege]
+  link: { href: "/projekte/#kunz-agrotech", label: "Kunz Agrotech" }
+- id: kunz-global
+  date: "2025-12"
+  label: "Dezember 2025"
+  title: "Kunz Global"
+  text: "Aus mehreren Projekten werden Unternehmen unter einer Dachmarke: Landwirtschaft, Software, Handel, Business Services."
+  place: Uruguay
+  chapter: unternehmer
+  topics: [unternehmertum]
+  link: { href: "/projekte/", label: "Alle Projekte" }
+- id: agralon
+  date: "2026-09"
+  label: "September 2026"
+  title: "Agralon geht in die Beta"
+  text: "Die Software, die aus meinem eigenen Drohnenbetrieb entstanden ist, wird öffentlich nutzbar."
+  place: Online
+  chapter: unternehmer
+  topics: [technologie, agrardrohnen]
+  link: { href: "/projekte/#agralon", label: "Agralon" }
+- id: kanal
+  date: "2026-10"
+  label: "Oktober 2026"
+  title: "Die Kamera läuft"
+  text: "Nach vier, fünf Jahren Aufschieben: „Ich mache das jetzt.“ Seitdem dokumentiere ich, was hier tatsächlich passiert."
+  place: Uruguay
+  chapter: dokumentieren
+  image: { src: "../../assets/media/stanley-campo-lachen.jpg", alt: "Stanley Kunz filmt sich lachend auf einer Weide." }
+  topics: [alltag]
+  link: { href: "/videos/", label: "Zu den Videos" }

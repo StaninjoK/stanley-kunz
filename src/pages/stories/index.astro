@@ -1,0 +1,107 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import StoryCard from '../../components/cards/StoryCard.astro';
+import TopicFilter from '../../components/TopicFilter.astro';
+import { getStories } from '../../lib/content';
+import { breadcrumbSchema } from '../../lib/schema';
+import type { TopicId } from '../../config/taxonomy';
+
+const stories = await getStories();
+const featured = stories.find((s) => s.data.featured) ?? stories[0];
+const rest = stories.filter((s) => s !== featured);
+const topics = [...new Set(stories.flatMap((s) => s.data.topics))] as TopicId[];
+---
+
+<BaseLayout
+  title="Stories"
+  description="Geschichten aus meinem Leben in Uruguay: Auswandern, Landwirtschaft, Agrardrohnen und Unternehmertum – aufgeschrieben, damit sie auch ohne Video funktionieren."
+  path="/stories/"
+  ogImage="/og/pages/stories.jpg"
+  schema={[breadcrumbSchema([{ name: 'Start', path: '/' }, { name: 'Stories', path: '/stories/' }])]}
+>
+  <PageHeader
+    eyebrow="Stories"
+    title="Aufgeschrieben, <em>zum Nachlesen.</em>"
+    intro="Nicht jedes Video wird eine Story. Nur die, die genug zu erzählen haben – geordnet, ergänzt um Fakten und so geschrieben, dass man das Video nicht gesehen haben muss."
+  />
+
+  <div class="container listing">
+    {
+      featured && (
+        <div class="feature" data-reveal>
+          <StoryCard story={featured} variant="feature" headingLevel={2} priority />
+        </div>
+      )
+    }
+
+    {topics.length > 1 && rest.length > 0 && <TopicFilter topics={topics} target="#story-list" empty="#story-empty" />}
+
+    <div id="story-list" class="grid">
+      {
+        rest.map((s, i) => (
+          <div data-reveal style={`--reveal-delay: ${i % 3}`} data-topics={s.data.topics.join(' ')}>
+            <StoryCard story={s} headingLevel={2} />
+          </div>
+        ))
+      }
+    </div>
+    <p id="story-empty" class="empty" hidden>Zu diesem Thema gibt es noch keine weitere Story.</p>
+
+    {
+      stories.length < 4 && (
+        <aside class="coming" data-reveal>
+          <p class="eyebrow">In Arbeit</p>
+          <p class="coming-text">Die nächsten Stories entstehen gerade aus den neuen Videos. Neue Stories kommen automatisch hierher – und in den RSS-Feed.</p>
+          <a class="link-arrow" href="/videos/">Zu den Videos</a>
+        </aside>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .listing {
+    padding-bottom: var(--section);
+  }
+  .feature {
+    padding-bottom: clamp(3rem, 2rem + 4vw, 5rem);
+    margin-bottom: clamp(3rem, 2rem + 4vw, 5rem);
+    border-bottom: 1px solid var(--rule);
+  }
+  .grid {
+    display: grid;
+    gap: 3rem 1.75rem;
+  }
+  @media (min-width: 700px) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1100px) {
+    .grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .grid > [hidden] {
+    display: none;
+  }
+  .empty {
+    color: var(--text-mute);
+  }
+  .coming {
+    margin-top: clamp(3rem, 2rem + 3vw, 5rem);
+    padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+    border: 1px dashed var(--rule-strong);
+    border-radius: var(--radius);
+    display: grid;
+    gap: 0.9rem;
+    justify-items: start;
+  }
+  .coming-text {
+    font-family: var(--font-display);
+    font-size: var(--fs-h4);
+    line-height: 1.35;
+    max-width: 44rem;
+  }
+</style>

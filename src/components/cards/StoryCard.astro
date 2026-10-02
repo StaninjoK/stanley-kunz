@@ -1,0 +1,112 @@
+---
+import Media from '../Media.astro';
+import { TOPICS } from '../../config/taxonomy';
+import { readingMinutes, storyUrl, type Story } from '../../lib/content';
+import { formatDate } from '../../lib/format';
+
+interface Props {
+  story: Story;
+  variant?: 'feature' | 'default' | 'compact';
+  headingLevel?: 2 | 3;
+  priority?: boolean;
+}
+const { story, variant = 'default', headingLevel = 3, priority = false } = Astro.props;
+const d = story.data;
+const H = `h${headingLevel}` as 'h2' | 'h3';
+const minutes = readingMinutes(story.body);
+const sizes =
+  variant === 'feature'
+    ? '(min-width: 1100px) 640px, (min-width: 760px) 50vw, 100vw'
+    : variant === 'compact'
+      ? '160px'
+      : '(min-width: 1100px) 440px, (min-width: 640px) 50vw, 100vw';
+---
+
+<article class:list={['story-card', `v-${variant}`]} data-topics={d.topics.join(' ')}>
+  <a class="hit" href={storyUrl(story)}>
+    <div class:list={['frame zoom', variant === 'feature' ? 'ratio-45' : variant === 'compact' ? 'ratio-45' : 'ratio-32']}>
+      <Media src={d.hero.src} alt={d.hero.alt} sizes={sizes} position={d.hero.position} priority={priority} />
+    </div>
+    <div class="body">
+      <p class="meta">
+        <span>{TOPICS[d.topics[0]!].label}</span>
+        <time datetime={d.publishDate.toISOString()}>{formatDate(d.publishDate)}</time>
+        {variant !== 'compact' && <span>{minutes} Min.</span>}
+      </p>
+      <H class="title">{d.title}</H>
+      {variant !== 'compact' && <p class="dek">{d.dek}</p>}
+      {variant === 'feature' && <span class="more">Story lesen</span>}
+    </div>
+  </a>
+</article>
+
+<style>
+  .hit {
+    display: grid;
+    gap: 1.1rem;
+    text-decoration: none;
+    color: inherit;
+  }
+  .title {
+    font-size: var(--fs-h3);
+    line-height: 1.1;
+    transition: color var(--t-fast);
+  }
+  .meta {
+    margin-bottom: 0.7rem;
+  }
+  .dek {
+    margin-top: 0.75rem;
+    color: var(--text-soft);
+    line-height: 1.55;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .hit:hover .title {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.14em;
+    text-decoration-color: var(--sun);
+  }
+  /* feature */
+  .v-feature .hit {
+    gap: clamp(1.25rem, 0.5rem + 3vw, 3.5rem);
+    align-items: center;
+  }
+  @media (min-width: 760px) {
+    .v-feature .hit {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+  .v-feature .title {
+    font-size: var(--fs-h2);
+    line-height: 1.02;
+  }
+  .v-feature .dek {
+    font-size: var(--fs-lead);
+    -webkit-line-clamp: 5;
+  }
+  .more {
+    display: inline-flex;
+    margin-top: 1.6rem;
+    font-weight: 600;
+    border-bottom: 1px solid var(--sun);
+    padding-bottom: 0.15rem;
+  }
+  /* compact */
+  .v-compact .hit {
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    gap: 1rem;
+    align-items: center;
+  }
+  .v-compact .title {
+    font-size: var(--fs-h4);
+    font-family: var(--font-display);
+    font-weight: 500;
+  }
+  .v-compact .meta {
+    margin-bottom: 0.4rem;
+  }
+</style>

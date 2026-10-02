@@ -1,0 +1,43 @@
+---
+import Breadcrumbs from './Breadcrumbs.astro';
+
+interface Props {
+  eyebrow: string;
+  /** Title HTML (may contain <em>). Trusted, authored in code. */
+  title: string;
+  intro?: string;
+  crumbs?: { name: string; path?: string }[];
+}
+const { eyebrow, title, intro, crumbs } = Astro.props;
+---
+
+<header class="page-head container">
+  {crumbs && <Breadcrumbs items={crumbs} />}
+  <p class="eyebrow">{eyebrow}</p>
+  <h1 class="ph-title" set:html={title} />
+  {intro && <p class="ph-intro">{intro}</p>}
+  <slot />
+</header>
+
+<style>
+  .page-head {
+    padding-block: clamp(2.5rem, 1.5rem + 5vw, 6rem) clamp(2rem, 1rem + 3vw, 3.5rem);
+  }
+  .eyebrow {
+    margin-top: 1.5rem;
+  }
+  .ph-title {
+    margin-top: 1.1rem;
+    font-size: var(--fs-hero);
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    max-width: 16ch;
+  }
+  .ph-intro {
+    margin-top: 1.4rem;
+    max-width: 40rem;
+    font-size: var(--fs-lead);
+    line-height: 1.5;
+    color: var(--text-soft);
+  }
+</style>

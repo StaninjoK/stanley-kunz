@@ -1,0 +1,36 @@
+---
+import { Picture } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+/**
+ * Responsive image: AVIF + WebP with a JPEG fallback, explicit sizes so the browser
+ * downloads only what it needs. Wrap in a `.frame` for rounded, cropped media.
+ */
+interface Props {
+  src: ImageMetadata;
+  alt: string;
+  sizes: string;
+  widths?: number[];
+  priority?: boolean;
+  position?: string;
+  class?: string;
+  quality?: number;
+}
+const { src, alt, sizes, widths, priority = false, position = '50% 50%', class: className, quality = 66 } = Astro.props;
+const base = widths ?? [360, 540, 720, 960, 1280, 1600, 2048];
+const w = base.filter((x) => x <= src.width);
+if (w.length === 0 || w[w.length - 1]! < src.width) w.push(src.width);
+---
+
+<Picture
+  src={src}
+  alt={alt}
+  widths={w}
+  sizes={sizes}
+  formats={['avif', 'webp']}
+  fallbackFormat="jpg"
+  quality={quality}
+  priority={priority}
+  class={className}
+  style={`object-position:${position}`}
+/>

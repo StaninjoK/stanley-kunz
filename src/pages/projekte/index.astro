@@ -1,0 +1,209 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import Media from '../../components/Media.astro';
+import { getProjects, getStories, storyUrl } from '../../lib/content';
+import { breadcrumbSchema } from '../../lib/schema';
+import { ICON } from '../../lib/icons';
+import { SITE } from '../../config/site';
+
+const projects = await getProjects();
+const stories = await getStories();
+const withContent = await Promise.all(
+  projects.map(async (p) => ({
+    p,
+    Content: (await render(p)).Content,
+    stories: stories.filter((s) => s.data.projects.some((r) => r.id === p.id)),
+  })),
+);
+const featured = withContent.filter(({ p }) => p.data.featured);
+const others = withContent.filter(({ p }) => !p.data.featured);
+const STATUS: Record<string, string> = { aktiv: 'Aktiv', beta: 'Beta', 'in-entwicklung': 'In Entwicklung', pausiert: 'Pausiert', abgeschlossen: 'Abgeschlossen' };
+const host = (url?: string) => (url ? new URL(url).hostname.replace(/^www\./, '') : '');
+---
+
+<BaseLayout
+  title="Projekte"
+  description="Was Stanley Kunz in Uruguay aufbaut – Agrardrohnen, Agrarsoftware, Handel mit Europa und mehr. Aus persönlicher Sicht: was es ist, warum es das gibt, wo es steht."
+  path="/projekte/"
+  ogImage="/og/pages/projekte.jpg"
+  schema={[breadcrumbSchema([{ name: 'Start', path: '/' }, { name: 'Projekte', path: '/projekte/' }])]}
+>
+  <PageHeader
+    eyebrow="Projekte"
+    title="Was ich <em>aufbaue.</em>"
+    intro="Das hier ist keine Firmenbroschüre – die offiziellen Seiten sind jeweils verlinkt. Hier steht, was ich persönlich aufbaue, warum es das gibt und wo es gerade steht."
+  />
+
+  <div class="container featured">
+    {
+      featured.map(({ p, Content, stories: rel }, i) => (
+        <section id={p.id} class:list={['proj', { flip: i % 2 === 1 }]} aria-labelledby={`${p.id}-t`}>
+          {p.data.image && (
+            <div class="proj-media frame zoom" data-reveal>
+              <Media src={p.data.image.src} alt={p.data.image.alt} sizes="(min-width: 1000px) 46vw, 100vw" position={p.data.image.position} />
+            </div>
+          )}
+          <div class="proj-text" data-reveal style="--reveal-delay: 1">
+            <p class="meta">
+              <span>{p.data.category}</span>
+              {p.data.since && <span>{p.data.since}</span>}
+            </p>
+            <h2 id={`${p.id}-t`} class="proj-name">{p.data.name}</h2>
+            <p class="status" data-status={p.data.status}>
+              {STATUS[p.data.status]} · {p.data.role}
+            </p>
+            <p class="proj-sum">{p.data.summary}</p>
+            <div class="proj-body">
+              <Content />
+            </div>
+            <div class="proj-links">
+              {p.data.url && (
+                <a class="link-arrow" href={p.data.url} rel="noopener" target="_blank" data-track={`outbound-project-${p.id}`}>
+                  {host(p.data.url)} <span set:html={ICON.arrowUpRight} />
+                </a>
+              )}
+              {rel.map((s) => (
+                <a class="link-arrow" href={storyUrl(s)}>
+                  Story: {s.data.title.split(':')[0]} <span set:html={ICON.arrow} />
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      ))
+    }
+  </div>
+
+  <section class="section surface-paper-2 others" aria-labelledby="others-title">
+    <div class="container">
+      <header class="section-head">
+        <div>
+          <p class="eyebrow">Unter Kunz Global</p>
+          <h2 id="others-title">Weitere <em>Unternehmen.</em></h2>
+        </div>
+        <p>
+          Die Details zu allen Firmen stehen auf <a href={SITE.organization.url} rel="noopener">kunzglobal.com</a>. Über einzelne werde ich
+          erzählen, wenn es etwas Echtes zu erzählen gibt.
+        </p>
+      </header>
+      <ul role="list" class="o-grid">
+        {
+          others.map(({ p, Content }, i) => (
+            <li id={p.id} class="o-card" data-reveal style={`--reveal-delay: ${i % 3}`}>
+              <p class="meta">
+                <span>{p.data.category}</span>
+                {p.data.since && <span>{p.data.since}</span>}
+              </p>
+              <h3 class="o-name">{p.data.name}</h3>
+              <p class="status" data-status={p.data.status}>
+                {STATUS[p.data.status]}
+              </p>
+              <div class="o-body">
+                <Content />
+              </div>
+              {p.data.url && (
+                <a class="link-arrow" href={p.data.url} rel="noopener" target="_blank" data-track={`outbound-project-${p.id}`}>
+                  {host(p.data.url)} <span set:html={ICON.arrowUpRight} />
+                </a>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .featured {
+    display: grid;
+    gap: clamp(4rem, 3rem + 5vw, 8rem);
+    padding-bottom: var(--section);
+  }
+  .proj {
+    display: grid;
+    gap: 2rem;
+    align-items: center;
+    scroll-margin-top: calc(var(--header-h) + 2rem);
+  }
+  @media (min-width: 1000px) {
+    .proj {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 5rem;
+    }
+    .flip .proj-media {
+      order: 2;
+    }
+  }
+  .proj-media {
+    aspect-ratio: 4 / 5;
+    box-shadow: var(--frame-shadow);
+  }
+  .proj-media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .proj-name {
+    margin: 0.9rem 0 0.8rem;
+    font-size: var(--fs-h1);
+  }
+  .proj-sum {
+    margin-top: 1.4rem;
+    font-size: var(--fs-lead);
+    line-height: 1.45;
+  }
+  .proj-body {
+    margin-top: 1.2rem;
+    color: var(--text-soft);
+    display: grid;
+    gap: 0.9rem;
+  }
+  .proj-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem 1.5rem;
+    margin-top: 1.75rem;
+  }
+  .others a:not(.link-arrow) {
+    text-decoration-color: var(--sun);
+  }
+  .o-grid {
+    display: grid;
+    gap: 1.25rem;
+  }
+  @media (min-width: 700px) {
+    .o-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1100px) {
+    .o-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .o-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1.6rem;
+    border-radius: var(--radius);
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    scroll-margin-top: calc(var(--header-h) + 2rem);
+  }
+  .o-name {
+    font-size: var(--fs-h3);
+  }
+  .o-body {
+    color: var(--text-soft);
+    font-size: 0.97rem;
+    margin-bottom: 0.6rem;
+  }
+  .o-card .link-arrow {
+    margin-top: auto;
+    align-self: flex-start;
+  }
+</style>

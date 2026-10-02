@@ -1,0 +1,210 @@
+---
+import Media from './Media.astro';
+import { ICON, BRAND_ICON } from '../lib/icons';
+import { SITE } from '../config/site';
+import { durationLabel, isPublishedVideo, type Video } from '../lib/content';
+
+/**
+ * Privacy-friendly YouTube embed. Shows our own optimised thumbnail; YouTube (and its cookies)
+ * only load after an explicit click, via youtube-nocookie.com. Upcoming videos show a teaser state.
+ */
+interface Props {
+  video: Video;
+  sizes: string;
+  priority?: boolean;
+  start?: number;
+  size?: 'l' | 'm';
+}
+const { video, sizes, priority = false, start, size = 'l' } = Astro.props;
+const live = isPublishedVideo(video);
+const duration = durationLabel(video.data.duration);
+---
+
+<div class:list={['facade frame ratio-169', `size-${size}`, { upcoming: !live }]} data-yt>
+  <Media src={video.data.thumbnail} alt={video.data.thumbnailAlt} sizes={sizes} priority={priority} widths={[480, 720, 960, 1280]} />
+  {
+    live ? (
+      <button
+        class="play"
+        type="button"
+        data-yt-play={video.data.youtubeId}
+        data-title={video.data.title}
+        data-start={start}
+        aria-label={`Video abspielen: ${video.data.title}`}
+      >
+        <span class="play-disc" set:html={ICON.play} />
+        <span class="play-label">
+          Abspielen{duration && <span class="dur">{duration}</span>}
+        </span>
+      </button>
+    ) : (
+      <a class="soon" href={SITE.youtube.subscribeUrl} rel="noopener" target="_blank" data-track="outbound-youtube-upcoming">
+        <span class="soon-badge">Demnächst auf YouTube</span>
+        <span class="soon-cta">
+          <span set:html={BRAND_ICON.youtube} /> Kanal abonnieren, um es nicht zu verpassen
+        </span>
+      </a>
+    )
+  }
+  {live && <p class="consent">Beim Abspielen wird das Video von YouTube geladen.</p>}
+</div>
+
+<style>
+  .facade {
+    background: var(--night-2);
+    box-shadow: var(--frame-shadow);
+  }
+  .facade::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(180deg, transparent 45%, rgba(10, 9, 7, 0.55));
+    pointer-events: none;
+    transition: opacity var(--t-med);
+  }
+  .facade :global(img) {
+    position: absolute;
+    inset: 0;
+    transition: transform 1.2s var(--ease-out);
+  }
+  .facade :global(iframe) {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .play {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    gap: 0.9rem;
+    padding: clamp(0.9rem, 0.6rem + 1.2vw, 1.6rem);
+    border: 0;
+    background: transparent;
+    color: #fff;
+    text-align: left;
+  }
+  .play-disc {
+    display: grid;
+    place-items: center;
+    width: clamp(3.2rem, 2.6rem + 2.2vw, 4.6rem);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--sun);
+    color: var(--night);
+    box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.55);
+    transition: transform var(--t-med) var(--ease-out);
+  }
+  .play-disc :global(svg) {
+    width: 42%;
+    height: 42%;
+    margin-left: 6%;
+  }
+  .size-m .play-disc {
+    width: 3rem;
+  }
+  .play-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding-bottom: 0.4rem;
+    font-weight: 650;
+    font-size: 0.95rem;
+    text-shadow: 0 1px 12px rgba(0, 0, 0, 0.5);
+  }
+  .dur {
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.55);
+    font-variant-numeric: tabular-nums;
+    font-size: 0.82rem;
+  }
+  @media (hover: hover) {
+    .facade:hover :global(img) {
+      transform: scale(1.03);
+    }
+    .play:hover .play-disc,
+    .play:focus-visible .play-disc {
+      transform: scale(1.08);
+    }
+  }
+  .play:focus-visible {
+    outline-offset: -6px;
+  }
+  .consent {
+    position: absolute;
+    right: 0.9rem;
+    bottom: 0.7rem;
+    z-index: 2;
+    max-width: 14rem;
+    font-size: 0.7rem;
+    line-height: 1.3;
+    color: rgba(255, 255, 255, 0.72);
+    text-align: right;
+    pointer-events: none;
+  }
+  .size-m .consent {
+    display: none;
+  }
+  :global(.is-playing) > .consent,
+  :global(.is-playing)::before {
+    opacity: 0;
+  }
+  .soon {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: clamp(0.9rem, 0.6rem + 1.2vw, 1.5rem);
+    color: #fff;
+    text-decoration: none;
+  }
+  .soon-badge {
+    padding: 0.4rem 0.75rem;
+    border-radius: 999px;
+    background: var(--sun);
+    color: var(--night);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .soon-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-shadow: 0 1px 12px rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity var(--t-med), transform var(--t-med) var(--ease-out);
+  }
+  .soon-cta :global(svg) {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+  .soon:hover .soon-cta,
+  .soon:focus-visible .soon-cta {
+    opacity: 1;
+    transform: none;
+  }
+  @media (hover: none) {
+    .soon-cta {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .size-m .soon-cta {
+    display: none;
+  }
+</style>

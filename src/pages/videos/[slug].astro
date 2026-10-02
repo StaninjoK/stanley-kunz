@@ -1,0 +1,273 @@
+---
+import { getImage } from 'astro:assets';
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import VideoFacade from '../../components/VideoFacade.astro';
+import VideoCard from '../../components/cards/VideoCard.astro';
+import StoryCard from '../../components/cards/StoryCard.astro';
+import ShareLinks from '../../components/ShareLinks.astro';
+import { TOPICS, topicPath } from '../../config/taxonomy';
+import { SITE } from '../../config/site';
+import { ICON, BRAND_ICON } from '../../lib/icons';
+import { formatDate, metaDescription } from '../../lib/format';
+import { durationLabel, getVideos, isPublishedVideo, storyForVideo, videoUrl, youtubeWatchUrl, type Video } from '../../lib/content';
+import { breadcrumbSchema, videoSchema, abs } from '../../lib/schema';
+
+export async function getStaticPaths() {
+  const videos = await getVideos();
+  return videos.map((video) => ({ params: { slug: video.id }, props: { video } }));
+}
+
+interface Props {
+  video: Video;
+}
+const { video } = Astro.props;
+const d = video.data;
+const { Content } = await render(video);
+const path = videoUrl(video);
+const live = isPublishedVideo(video);
+const story = await storyForVideo(video.id);
+const others = (await getVideos()).filter((v) => v.id !== video.id).slice(0, 3);
+const thumb = abs((await getImage({ src: d.thumbnail, width: 1280, format: 'jpg' })).src);
+const schema = [
+  breadcrumbSchema([
+    { name: 'Start', path: '/' },
+    { name: 'Videos', path: '/videos/' },
+    { name: d.title, path },
+  ]),
+  ...(live && d.youtubeId
+    ? [videoSchema({ path, name: d.title, description: d.description, thumbnailUrl: thumb, youtubeId: d.youtubeId, uploadDate: d.publishDate, duration: d.duration, chapters: d.chapters })]
+    : []),
+];
+const duration = durationLabel(d.duration);
+---
+
+<BaseLayout
+  title={d.title}
+  description={metaDescription(d.description)}
+  path={path}
+  ogImage={`/og/videos/${video.id}.jpg`}
+  ogImageAlt={d.thumbnailAlt}
+  ogType={live ? 'video.other' : 'website'}
+  schema={schema}
+>
+  <article>
+    <header class="container head">
+      <Breadcrumbs items={[{ name: 'Start', path: '/' }, { name: 'Videos', path: '/videos/' }, { name: d.title }]} />
+      <h1 class="title">{d.title}</h1>
+      <p class="meta">
+        {live && d.publishDate ? <time datetime={d.publishDate.toISOString()}>{formatDate(d.publishDate)}</time> : <span>Demnächst auf YouTube</span>}
+        {duration && <span>{duration} Min.</span>}
+        <span>Deutsch · Untertitel DE/ES/EN/PT</span>
+      </p>
+    </header>
+
+    <div class="container player">
+      <VideoFacade video={video} sizes="(min-width: 1440px) 1340px, 100vw" priority />
+    </div>
+
+    <div class="container body">
+      <div class="desc">
+        {d.context && <p class="ctx">{d.context}</p>}
+        <div class="text"><Content /></div>
+        <div class="actions">
+          {
+            live && d.youtubeId ? (
+              <a class="btn btn-sun" href={youtubeWatchUrl(d.youtubeId)} rel="noopener" target="_blank" data-track="outbound-youtube-video">
+                <span set:html={BRAND_ICON.youtube} /> Auf YouTube ansehen
+              </a>
+            ) : (
+              <a class="btn btn-sun" href={SITE.youtube.subscribeUrl} rel="noopener" target="_blank" data-track="outbound-youtube-subscribe">
+                <span set:html={BRAND_ICON.youtube} /> Kanal abonnieren
+              </a>
+            )
+          }
+          {story && (
+            <a class="btn btn-ghost" href={`/stories/${story.id}/`}>
+              Die Story zum Nachlesen
+            </a>
+          )}
+        </div>
+        <ul role="list" class="chips">
+          {
+            d.topics.map((t) => (
+              <li>
+                <a class="chip" href={topicPath(t)}>
+                  {TOPICS[t].label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        <ShareLinks path={path} title={d.title} />
+      </div>
+
+      {
+        d.chapters.length > 0 && (
+          <section class="chapters" aria-labelledby="chapters-title">
+            <h2 id="chapters-title" class="ch-title">Kapitel</h2>
+            <ol role="list">
+              {d.chapters.map((c) => (
+                <li id={`t-${c.time.replace(/:/g, '-')}`}>
+                  {live && d.youtubeId ? (
+                    <a href={youtubeWatchUrl(d.youtubeId, c.time)} rel="noopener" target="_blank" data-track="chapter-click">
+                      <span class="time">{c.time}</span>
+                      <span class="ct">{c.title}</span>
+                      <span class="go" set:html={ICON.play} />
+                    </a>
+                  ) : (
+                    <span class="row">
+                      <span class="time">{c.time}</span>
+                      <span class="ct">{c.title}</span>
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </section>
+        )
+      }
+    </div>
+  </article>
+
+  {
+    story && (
+      <section class="section-tight container story-link" aria-labelledby="story-title">
+        <h2 id="story-title" class="sec-title">Die Story dazu</h2>
+        <StoryCard story={story} variant="feature" headingLevel={3} />
+      </section>
+    )
+  }
+
+  {
+    others.length > 0 && (
+      <section class="section surface-paper-2" aria-labelledby="more-title">
+        <div class="container">
+          <h2 id="more-title" class="sec-title">Weitere Videos</h2>
+          <div class="grid">
+            {others.map((v) => (
+              <VideoCard video={v} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .head {
+    padding-block: clamp(2rem, 1rem + 4vw, 4rem) 1.75rem;
+  }
+  .title {
+    margin: 1.3rem 0 1rem;
+    font-size: var(--fs-h1);
+    max-width: 22ch;
+  }
+  .player {
+    margin-bottom: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+  }
+  .body {
+    display: grid;
+    gap: 3rem;
+    padding-bottom: clamp(3rem, 2rem + 4vw, 6rem);
+  }
+  @media (min-width: 1000px) {
+    .body {
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 5rem;
+    }
+  }
+  .ctx {
+    font-family: var(--font-display);
+    font-size: var(--fs-h4);
+    font-style: italic;
+    line-height: 1.4;
+    margin-bottom: 1.2rem;
+  }
+  .text :global(p) {
+    color: var(--text-soft);
+    margin-bottom: 1rem;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 1.75rem 0;
+  }
+  .actions :global(svg) {
+    width: 1.2em;
+    height: 1.2em;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1.5rem;
+  }
+  .ch-title,
+  .sec-title {
+    font-size: var(--fs-h3);
+    margin-bottom: 1.2rem;
+  }
+  .chapters ol {
+    border-top: 1px solid var(--rule-strong);
+  }
+  .chapters li {
+    border-bottom: 1px solid var(--rule);
+  }
+  .chapters a,
+  .chapters .row {
+    display: grid;
+    grid-template-columns: 3.6rem 1fr auto;
+    gap: 0.75rem;
+    align-items: center;
+    min-height: 48px;
+    padding: 0.55rem 0;
+    text-decoration: none;
+  }
+  .time {
+    font-variant-numeric: tabular-nums;
+    font-size: 0.85rem;
+    font-weight: 650;
+    color: var(--text-mute);
+  }
+  .go {
+    opacity: 0;
+    color: var(--sun-ink);
+    transition: opacity var(--t-fast);
+  }
+  .go :global(svg) {
+    width: 1rem;
+    height: 1rem;
+  }
+  .chapters a:hover .go,
+  .chapters a:focus-visible .go {
+    opacity: 1;
+  }
+  .chapters a:hover .ct {
+    text-decoration: underline;
+    text-decoration-color: var(--sun);
+  }
+  :target {
+    background: color-mix(in srgb, var(--sun) 18%, transparent);
+  }
+  .story-link {
+    padding-bottom: var(--section);
+  }
+  .grid {
+    display: grid;
+    gap: 2.5rem 1.5rem;
+  }
+  @media (min-width: 640px) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1100px) {
+    .grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

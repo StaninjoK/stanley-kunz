@@ -1,0 +1,234 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import Media from '../components/Media.astro';
+import { getJourney, type JourneyEntry } from '../lib/content';
+import { breadcrumbSchema } from '../lib/schema';
+import { ICON } from '../lib/icons';
+
+const entries = await getJourney();
+const CHAPTERS: { id: JourneyEntry['data']['chapter']; title: string; intro: string }[] = [
+  { id: 'deutschland', title: 'Deutschland', intro: 'Arbeiten, sparen, eine Ausbildung. Und irgendwann die Gewissheit, dass das nicht für immer ist.' },
+  { id: 'ankommen', title: 'Ankommen', intro: 'Ohne Spanisch, mit wenig Geld, in einer kleinen Bude. Die Freunde: zwei Hunde.' },
+  { id: 'aufbauen', title: 'Aufbauen', intro: 'Grundstück, Haus, Tiere – und nebenbei Geld verdienen. Nicht immer in der richtigen Reihenfolge.' },
+  { id: 'unternehmer', title: 'Unternehmer', intro: 'Eine Drohne, geliehenes Geld, ein leerer erster Monat. Und daraus mehrere Firmen.' },
+  { id: 'dokumentieren', title: 'Dokumentieren', intro: 'Die Kamera läuft. Ab hier geht die Geschichte in Echtzeit weiter.' },
+];
+const grouped = CHAPTERS.map((c) => ({ ...c, items: entries.filter((e) => e.data.chapter === c.id) })).filter((c) => c.items.length);
+---
+
+<BaseLayout
+  title="Der Weg"
+  description="Die Stationen von Stanley Kunz: Ausbildung in Deutschland, mit 19 nach Uruguay, Campo, Agrardrohnen, eigene Unternehmen – und der Start des YouTube-Kanals."
+  path="/weg/"
+  ogImage="/og/pages/weg.jpg"
+  schema={[breadcrumbSchema([{ name: 'Start', path: '/' }, { name: 'Der Weg', path: '/weg/' }])]}
+>
+  <PageHeader
+    eyebrow="Der Weg"
+    title="Von der Ausbildung <em>zum eigenen Campo.</em>"
+    intro="Kein Lebenslauf, sondern die Stationen, an denen sich etwas verändert hat. Wo ich ein Datum nicht genau weiß, steht das auch so da."
+  />
+
+  <div class="container journey">
+    {
+      grouped.map((c, ci) => (
+        <section class="chapter" aria-labelledby={`ch-${c.id}`}>
+          <header class="ch-head">
+            <span class="ch-num">{String(ci + 1).padStart(2, '0')}</span>
+            <h2 id={`ch-${c.id}`} class="ch-title">{c.title}</h2>
+            <p class="ch-intro">{c.intro}</p>
+          </header>
+          <ol role="list" class="items">
+            {c.items.map((e) => (
+              <li class:list={['item', { 'has-img': e.data.image }]} data-reveal>
+                <div class="when">
+                  <span class="label">{e.data.label}</span>
+                  {e.data.place && <span class="place">{e.data.place}</span>}
+                </div>
+                <span class="node" aria-hidden="true" />
+                <div class="what">
+                  <h3 class="t">{e.data.title}</h3>
+                  <p class="x">{e.data.text}</p>
+                  {e.data.link && (
+                    <a class="link-arrow" href={e.data.link.href}>
+                      {e.data.link.label} <span set:html={ICON.arrow} />
+                    </a>
+                  )}
+                </div>
+                {e.data.image && (
+                  <div class="img frame">
+                    <Media src={e.data.image.src} alt={e.data.image.alt} sizes="(min-width: 1000px) 260px, 60vw" widths={[360, 540]} />
+                  </div>
+                )}
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))
+    }
+    <p class="next" data-reveal>
+      <span class="next-k">Fortsetzung folgt</span>
+      <span class="next-t">Was als Nächstes passiert, siehst du in den <a href="/videos/">Videos</a>.</span>
+    </p>
+  </div>
+</BaseLayout>
+
+<style>
+  .journey {
+    padding-bottom: var(--section);
+  }
+  .chapter {
+    display: grid;
+    gap: 2rem;
+    padding-block: clamp(2.5rem, 1.5rem + 3vw, 4.5rem);
+    border-top: 1px solid var(--rule-strong);
+  }
+  @media (min-width: 1000px) {
+    .chapter {
+      grid-template-columns: 22rem minmax(0, 1fr);
+      gap: 4rem;
+    }
+    .ch-head {
+      position: sticky;
+      top: calc(var(--header-h) + 2rem);
+      align-self: start;
+    }
+  }
+  .ch-num {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--sun-ink);
+  }
+  .ch-title {
+    margin-top: 0.5rem;
+    font-size: var(--fs-h1);
+  }
+  .ch-intro {
+    margin-top: 0.9rem;
+    color: var(--text-soft);
+    max-width: 24rem;
+  }
+  .items {
+    display: grid;
+  }
+  .item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 6.5rem 1.4rem minmax(0, 1fr);
+    grid-template-areas:
+      'when node what'
+      '. . img';
+    column-gap: 1rem;
+    padding-bottom: 2.4rem;
+  }
+  .item::before {
+    content: '';
+    position: absolute;
+    left: calc(6.5rem + 1rem + 0.7rem - 0.5px);
+    top: 0.9rem;
+    bottom: 0;
+    width: 1px;
+    background: var(--rule-strong);
+  }
+  .item:last-child::before {
+    bottom: 1.5rem;
+  }
+  @media (min-width: 1000px) {
+    .item.has-img {
+      grid-template-columns: 7rem 1.4rem minmax(0, 1fr) 13rem;
+      grid-template-areas: 'when node what img';
+    }
+    .item {
+      grid-template-columns: 7rem 1.4rem minmax(0, 1fr);
+    }
+    .item::before {
+      left: calc(7rem + 1rem + 0.7rem - 0.5px);
+    }
+  }
+  .when {
+    grid-area: when;
+    display: grid;
+    align-content: start;
+    gap: 0.1rem;
+    justify-items: end;
+    text-align: right;
+    padding-top: 0.2rem;
+  }
+  .label {
+    font-weight: 700;
+    font-size: 0.92rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .place {
+    font-size: 0.78rem;
+    color: var(--text-mute);
+  }
+  .node {
+    grid-area: node;
+    justify-self: center;
+    width: 13px;
+    height: 13px;
+    margin-top: 0.4rem;
+    border-radius: 50%;
+    border: 2px solid var(--text);
+    background: var(--paper);
+    z-index: 1;
+  }
+  .item:first-child .node {
+    background: var(--sun);
+    border-color: var(--sun);
+  }
+  .what {
+    grid-area: what;
+  }
+  .t {
+    font-size: var(--fs-h3);
+    line-height: 1.12;
+  }
+  .x {
+    margin-top: 0.6rem;
+    color: var(--text-soft);
+    max-width: 34rem;
+  }
+  .what .link-arrow {
+    margin-top: 0.9rem;
+  }
+  .img {
+    grid-area: img;
+    margin-top: 1rem;
+    aspect-ratio: 4 / 5;
+    max-width: 13rem;
+  }
+  @media (min-width: 1000px) {
+    .img {
+      margin-top: 0;
+    }
+  }
+  .img :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .next {
+    display: grid;
+    gap: 0.5rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--rule-strong);
+  }
+  .next-k {
+    font-size: var(--fs-meta);
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--sun-ink);
+  }
+  .next-t {
+    font-family: var(--font-display);
+    font-size: var(--fs-h3);
+  }
+  .next a {
+    text-decoration-color: var(--sun);
+  }
+</style>

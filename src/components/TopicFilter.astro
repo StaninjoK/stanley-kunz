@@ -1,0 +1,48 @@
+---
+import { TOPICS, type TopicId } from '../config/taxonomy';
+
+/** Client-side filter on top of a server-rendered list. Hidden without JavaScript (all items stay visible). */
+interface Props {
+  topics: TopicId[];
+  target: string;
+  empty?: string;
+}
+const { topics, target, empty } = Astro.props;
+---
+
+<div class="filter" data-filter={target} data-filter-empty={empty} hidden>
+  <span class="lbl" id="filter-label">Filtern nach Thema</span>
+  <div class="chips" role="group" aria-labelledby="filter-label">
+    <button type="button" class="chip" data-topic="" aria-pressed="true">Alle</button>
+    {
+      topics.map((t) => (
+        <button type="button" class="chip" data-topic={t} aria-pressed="false">
+          {TOPICS[t].label}
+        </button>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .filter {
+    display: grid;
+    gap: 0.7rem;
+    margin-bottom: 2.5rem;
+  }
+  .filter[hidden] {
+    display: none;
+  }
+  .lbl {
+    font-size: var(--fs-meta);
+    font-weight: 650;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-mute);
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+</style>

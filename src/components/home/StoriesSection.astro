@@ -1,0 +1,77 @@
+---
+import StoryCard from '../cards/StoryCard.astro';
+import { ICON } from '../../lib/icons';
+import type { Story } from '../../lib/content';
+
+interface Props {
+  stories: Story[];
+}
+const { stories } = Astro.props;
+const featured = stories.find((s) => s.data.featured) ?? stories[0];
+const feature = featured;
+const rest = stories.filter((s) => s !== featured);
+---
+
+{
+  feature && (
+    <section class="section stories surface-paper-2" aria-labelledby="stories-title">
+      <div class="container">
+        <header class="section-head">
+          <div>
+            <p class="eyebrow">Stories</p>
+            <h2 id="stories-title">
+              Aufgeschrieben, <em>zum Nachlesen.</em>
+            </h2>
+          </div>
+          <p>
+            Wenn ein Video genug zu erzählen hat, wird daraus eine Story: geordnet, ergänzt und so geschrieben, dass sie
+            auch ohne das Video funktioniert.
+          </p>
+        </header>
+
+        <div data-reveal>
+          <StoryCard story={feature} variant="feature" />
+        </div>
+
+        {rest.length > 0 && (
+          <div class="rest">
+            {rest.slice(0, 3).map((s, i) => (
+              <div data-reveal style={`--reveal-delay: ${i}`}>
+                <StoryCard story={s} />
+              </div>
+            ))}
+          </div>
+        )}
+
+        <p class="all">
+          <a class="link-arrow" href="/stories/">
+            Alle Stories <span set:html={ICON.arrow} />
+          </a>
+        </p>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .rest {
+    display: grid;
+    gap: 2.5rem 1.75rem;
+    margin-top: clamp(3rem, 2rem + 4vw, 5.5rem);
+    padding-top: clamp(2.5rem, 1.5rem + 3vw, 4rem);
+    border-top: 1px solid var(--rule);
+  }
+  @media (min-width: 700px) {
+    .rest {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1100px) {
+    .rest {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .all {
+    margin-top: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+  }
+</style>

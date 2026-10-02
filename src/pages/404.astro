@@ -1,0 +1,55 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getStories } from '../lib/content';
+import StoryCard from '../components/cards/StoryCard.astro';
+
+const stories = (await getStories()).slice(0, 2);
+---
+
+<BaseLayout title="Seite nicht gefunden" description="Diese Seite gibt es nicht (mehr). Zurück zu den Videos, Stories und Projekten von Stanley Kunz aus Uruguay." path="/404/" noindex>
+  <section class="container nf">
+    <p class="eyebrow">404</p>
+    <h1 class="t">Hier ist <em>nur Weide.</em></h1>
+    <p class="lead">Diese Seite gibt es nicht – oder nicht mehr. Vielleicht hilft einer dieser Wege weiter:</p>
+    <p class="links">
+      <a class="btn btn-sun" href="/">Zur Startseite</a>
+      <a class="btn btn-ghost" href="/stories/">Stories</a>
+      <a class="btn btn-ghost" href="/videos/">Videos</a>
+    </p>
+    {
+      stories.length > 0 && (
+        <div class="grid">
+          {stories.map((s) => (
+            <StoryCard story={s} variant="compact" />
+          ))}
+        </div>
+      )
+    }
+  </section>
+</BaseLayout>
+
+<style>
+  .nf {
+    padding-block: clamp(4rem, 2rem + 8vw, 9rem);
+  }
+  .t {
+    margin-top: 1rem;
+    font-size: var(--fs-hero);
+  }
+  .lead {
+    margin-top: 1.25rem;
+    max-width: 34rem;
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 2rem;
+  }
+  .grid {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 3.5rem;
+    max-width: 44rem;
+  }
+</style>

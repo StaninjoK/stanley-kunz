@@ -1,0 +1,91 @@
+name: Build, test & deploy
+
+on:
+  push:
+    branches: [main]
+  # Every 6 hours: pick up new YouTube uploads and publish stories whose publishDate has arrived.
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write # commit synced YouTube data back to the repository
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Sync YouTube channel
+        id: youtube
+        run: npm run sync:youtube
+
+      - name: Commit synced YouTube data
+        if: steps.youtube.outputs.changed == 'true'
+        run: |
+          git config user.name "stanley-kunz-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data src/content/videos src/assets/videos public/media/yt
+          git diff --cached --quiet || git commit -m "chore: YouTube-Sync" && git push
+
+      - name: Restore image cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules/.astro
+          key: astro-images-${{ hashFiles('src/assets/**', 'src/content/**/*.jpg') }}
+          restore-keys: astro-images-
+
+      - name: Typecheck, lint, unit tests, privacy scan
+        run: npm run check
+
+      - name: Build
+        run: npm run build
+
+      - name: Test build output
+        run: npm run test:site
+
+      - name: Privacy scan of the built site
+        run: npm run privacy:dist
+
+      - name: End-to-end & accessibility tests
+        if: github.event_name != 'schedule'
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:e2e
+
+      - name: Content overview
+        if: always()
+        run: npm run desk -- --md >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

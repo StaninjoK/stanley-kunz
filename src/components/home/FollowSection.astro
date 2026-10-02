@@ -1,0 +1,139 @@
+---
+import { SITE, visibleSocial } from '../../config/site';
+import { BRAND_ICON, ICON } from '../../lib/icons';
+
+const others = visibleSocial().filter((s) => s.id !== 'youtube');
+---
+
+<section class="section follow" aria-labelledby="follow-title">
+  <div class="container grid">
+    <a class="yt-card surface-night grain" href={SITE.youtube.subscribeUrl} rel="noopener" target="_blank" data-track="outbound-youtube-follow" data-reveal>
+      <span class="yt-logo" set:html={BRAND_ICON.youtube} />
+      <span class="yt-kicker">Der Hauptkanal</span>
+      <span id="follow-title" class="yt-title">Neue Videos jede Woche auf YouTube.</span>
+      <span class="yt-text">Längere Videos aus meinem Alltag in Uruguay, mit Untertiteln auf Deutsch, Spanisch, Englisch und Portugiesisch.</span>
+      <span class="btn btn-sun yt-btn">Kostenlos abonnieren <span set:html={ICON.arrowUpRight} /></span>
+    </a>
+
+    <div class="rest" data-reveal style="--reveal-delay: 1">
+      <h2 class="rest-title">Kurz und zwischendurch</h2>
+      <p class="rest-text">Shorts, Bilder und kleine Updates gibt es auf den anderen Plattformen. Neue Stories kommen per RSS.</p>
+      <ul role="list" class="nets">
+        {
+          others.map((s) => (
+            <li>
+              <a href={s.url} rel="noopener me" target="_blank" data-track={`outbound-${s.id}-follow`}>
+                <span class="ic" set:html={BRAND_ICON[s.id]} />
+                <span class="lbl">{s.label}</span>
+                <span class="hdl">{s.handle}</span>
+              </a>
+            </li>
+          ))
+        }
+        <li>
+          <a href="/rss.xml">
+            <span class="ic" set:html={ICON.rss} />
+            <span class="lbl">RSS-Feed</span>
+            <span class="hdl">Stories</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    gap: clamp(2rem, 1rem + 3vw, 4rem);
+    align-items: stretch;
+  }
+  @media (min-width: 960px) {
+    .grid {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    }
+  }
+  .yt-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: clamp(1.75rem, 1rem + 3vw, 3.5rem);
+    border-radius: var(--radius-l);
+    text-decoration: none;
+    overflow: hidden;
+    min-height: 24rem;
+  }
+  .yt-logo :global(svg) {
+    width: 3rem;
+    height: 3rem;
+    color: var(--sun);
+  }
+  .yt-kicker {
+    margin-top: auto;
+    font-size: var(--fs-meta);
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--on-night-mute);
+  }
+  .yt-title {
+    font-family: var(--font-display);
+    font-size: var(--fs-h2);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+  }
+  .yt-text {
+    color: var(--on-night-soft);
+    max-width: 30rem;
+  }
+  .yt-btn {
+    align-self: flex-start;
+    margin-top: 0.75rem;
+  }
+  .yt-card:hover .yt-btn {
+    --btn-bg: var(--sun-soft);
+  }
+  .rest {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .rest-title {
+    font-size: var(--fs-h3);
+  }
+  .rest-text {
+    margin-top: 0.8rem;
+    color: var(--text-soft);
+    max-width: 30rem;
+  }
+  .nets {
+    margin-top: 1.8rem;
+    border-top: 1px solid var(--rule);
+  }
+  .nets li {
+    border-bottom: 1px solid var(--rule);
+  }
+  .nets a {
+    display: grid;
+    grid-template-columns: 1.6rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.9rem;
+    min-height: 56px;
+    text-decoration: none;
+  }
+  .ic :global(svg) {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+  .lbl {
+    font-weight: 600;
+  }
+  .hdl {
+    color: var(--text-mute);
+    font-size: 0.9rem;
+  }
+  .nets a:hover .lbl {
+    text-decoration: underline;
+    text-decoration-color: var(--sun);
+  }
+</style>

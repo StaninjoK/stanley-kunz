@@ -1,0 +1,17 @@
+# build output
+dist/
+.astro/
+node_modules/
+
+# private working area – drafts, transcripts, review items. NEVER commit.
+content-inbox/
+desk/
+
+# local tooling
+.scratch/
+test-results/
+playwright-report/
+*.log
+.DS_Store
+.env
+.env.*

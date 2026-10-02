@@ -1,0 +1,215 @@
+---
+import Media from '../Media.astro';
+import { ICON } from '../../lib/icons';
+import type { Project } from '../../lib/content';
+
+interface Props {
+  projects: Project[];
+}
+const { projects } = Astro.props;
+const STATUS: Record<Project['data']['status'], string> = {
+  aktiv: 'Aktiv',
+  beta: 'Beta',
+  'in-entwicklung': 'In Entwicklung',
+  pausiert: 'Pausiert',
+  abgeschlossen: 'Abgeschlossen',
+};
+const withImages = projects.filter((p) => p.data.image);
+---
+
+<section class="section projects" aria-labelledby="projects-title">
+  <div class="container">
+    <header class="section-head">
+      <div>
+        <p class="eyebrow">Projekte</p>
+        <h2 id="projects-title">Was ich gerade <em>aufbaue.</em></h2>
+      </div>
+      <p>Nicht als Firmenprospekt, sondern aus meiner Sicht: was es ist, warum es das gibt und wo es gerade steht.</p>
+    </header>
+
+    <div class="list-wrap" data-preview-list>
+      <ol class="list" role="list">
+        {
+          projects.map((p, i) => (
+            <li data-reveal style={`--reveal-delay: ${Math.min(i, 4)}`}>
+              <a class="row" href={`/projekte/#${p.id}`} data-preview-key={p.id}>
+                <span class="num">{String(i + 1).padStart(2, '0')}</span>
+                <span class="name">{p.data.name}</span>
+                <span class="cat">{p.data.category}</span>
+                <span class="status" data-status={p.data.status}>{STATUS[p.data.status]}</span>
+                <span class="go" set:html={ICON.arrow} />
+                {p.data.image && (
+                  <span class="thumb frame">
+                    <Media src={p.data.image.src} alt="" sizes="72px" widths={[144]} position={p.data.image.position} />
+                  </span>
+                )}
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+      <div class="preview frame" data-preview aria-hidden="true">
+        {
+          withImages.map((p) => (
+            <div class="preview-item" data-preview-item={p.id}>
+              <Media src={p.data.image!.src} alt="" sizes="320px" widths={[320, 640]} position={p.data.image!.position} />
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .list-wrap {
+    position: relative;
+  }
+  .list {
+    border-top: 1px solid var(--rule-strong);
+  }
+  .list li {
+    border-bottom: 1px solid var(--rule);
+  }
+  .row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.2rem minmax(0, 1fr) auto;
+    grid-template-areas:
+      'num name go'
+      'num cat go'
+      'num status go';
+    align-items: center;
+    gap: 0.15rem 1rem;
+    padding: 1.15rem 0;
+    text-decoration: none;
+    color: inherit;
+  }
+  .num {
+    grid-area: num;
+    align-self: start;
+    padding-top: 0.55rem;
+    font-size: 0.8rem;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-mute);
+  }
+  .name {
+    grid-area: name;
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 1.2rem + 1.8vw, 2.9rem);
+    font-weight: 430;
+    letter-spacing: -0.025em;
+    line-height: 1.08;
+    transition: transform var(--t-med) var(--ease-out), color var(--t-fast);
+  }
+  .cat {
+    grid-area: cat;
+    color: var(--text-soft);
+    font-size: 0.97rem;
+  }
+  .status {
+    grid-area: status;
+    margin-top: 0.35rem;
+  }
+  .go {
+    grid-area: go;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--rule-strong);
+    transition: background-color var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+  }
+  .go :global(svg) {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+  .thumb {
+    display: none;
+  }
+  @media (min-width: 900px) {
+    .row {
+      grid-template-columns: 3rem minmax(0, 1.3fr) minmax(0, 1fr) 10rem 44px;
+      grid-template-areas: 'num name cat status go';
+      gap: 1.5rem;
+      padding: 1.5rem 0;
+    }
+    .num {
+      align-self: center;
+      padding-top: 0;
+    }
+    .status {
+      margin-top: 0;
+    }
+  }
+  @media (hover: hover) {
+    .row:hover .name {
+      transform: translateX(0.6rem);
+      font-style: italic;
+    }
+    .row:hover .go {
+      background: var(--sun);
+      border-color: var(--sun);
+      color: var(--night);
+    }
+  }
+  /* small inline thumbnails on touch devices */
+  @media (hover: none), (pointer: coarse) {
+    .row {
+      grid-template-columns: 2.2rem minmax(0, 1fr) 72px;
+      grid-template-areas:
+        'num name thumb'
+        'num cat thumb'
+        'num status thumb';
+    }
+    .go {
+      display: none;
+    }
+    .thumb {
+      display: block;
+      grid-area: thumb;
+      width: 72px;
+      aspect-ratio: 1;
+      border-radius: var(--radius-s);
+    }
+  }
+  /* floating preview following the pointer (desktop) */
+  .preview {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 5;
+    width: 280px;
+    aspect-ratio: 4 / 5;
+    pointer-events: none;
+    opacity: 0;
+    scale: 0.92;
+    box-shadow: var(--frame-shadow);
+    transition: opacity 0.35s var(--ease-out), scale 0.45s var(--ease-out);
+  }
+  .preview:global(.is-visible) {
+    opacity: 1;
+    scale: 1;
+  }
+  .preview-item {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.35s;
+  }
+  .preview-item:global(.is-active) {
+    opacity: 1;
+  }
+  .preview-item :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  @media (hover: none), (pointer: coarse), (max-width: 899px) {
+    .preview {
+      display: none;
+    }
+  }
+</style>

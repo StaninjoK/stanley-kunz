@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { SITE } from '../config/site';
+import '../styles/prose.css';
+---
+
+<BaseLayout title="Impressum" description="Impressum und Anbieterangaben für stanley.kunzglobal.com." path="/impressum/">
+  <PageHeader eyebrow="Rechtliches" title="Impressum" crumbs={[{ name: 'Start', path: '/' }, { name: 'Impressum' }]} />
+  <div class="container-text legal">
+    <div class="prose">
+      <h2>Anbieter</h2>
+      <p>
+        Stanley Kunz<br />
+        Kiyú / Libertad<br />
+        80100 San José<br />
+        Uruguay
+      </p>
+      <h2>Kontakt</h2>
+      <p>E-Mail: <a href={`mailto:${SITE.author.email}`}>{SITE.author.email}</a></p>
+      <h2>Verantwortlich für den Inhalt</h2>
+      <p>Stanley Kunz, Anschrift wie oben.</p>
+      <h2>Unternehmen</h2>
+      <p>
+        Die auf dieser Website erwähnten Unternehmen werden eigenständig betrieben. Angaben zu Kunz Global und den einzelnen Unternehmen stehen im
+        <a href="https://kunzglobal.com/de/legal/" rel="noopener">Impressum von kunzglobal.com</a> bzw. auf den jeweiligen Websites.
+      </p>
+      <h2>Haftung für Inhalte und Links</h2>
+      <p>
+        Die Inhalte dieser Website wurden mit Sorgfalt erstellt. Die Stories beruhen auf meinen eigenen Erfahrungen; Preise und Zahlen gelten für den
+        jeweils genannten Zeitpunkt. Für die Richtigkeit, Vollständigkeit und Aktualität kann keine Gewähr übernommen werden. Für Inhalte externer
+        Websites, auf die verlinkt wird, sind ausschließlich deren Betreiber verantwortlich.
+      </p>
+      <h2>Urheberrecht</h2>
+      <p>Texte, Fotos und Videos auf dieser Website stammen von Stanley Kunz, soweit nicht anders angegeben. Eine Verwendung ist nur mit Zustimmung erlaubt.</p>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .legal {
+    padding-bottom: var(--section);
+  }
+  .legal .prose {
+    font-family: var(--font-text);
+    font-size: 1.02rem;
+  }
+  .legal .prose :global(p:first-child::first-letter) {
+    float: none;
+    font-size: inherit;
+    padding: 0;
+  }
+  .legal .prose :global(h2) {
+    margin-top: 2em;
+    font-size: 1.35rem;
+  }
+</style>

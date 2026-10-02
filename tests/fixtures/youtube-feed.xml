@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns:media="http://search.yahoo.com/mrss/" xmlns="http://www.w3.org/2005/Atom">
+ <title>Stanley Kunz</title>
+ <entry>
+  <id>yt:video:AbCdEfGhIj1</id>
+  <yt:videoId>AbCdEfGhIj1</yt:videoId>
+  <title>Mein erstes Video aus Uruguay – so sieht mein Alltag auf dem Campo aus</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=AbCdEfGhIj1"/>
+  <published>2026-10-04T15:00:00+00:00</published>
+  <media:group><media:description>Mein allererstes Video aus Uruguay!</media:description></media:group>
+ </entry>
+ <entry>
+  <id>yt:video:Short000001</id>
+  <yt:videoId>Short000001</yt:videoId>
+  <title>„Crash.“ – Ein Wort.</title>
+  <link rel="alternate" href="https://www.youtube.com/shorts/Short000001"/>
+  <published>2026-10-05T15:00:00+00:00</published>
+ </entry>
+ <entry>
+  <id>yt:video:NewLong0001</id>
+  <yt:videoId>NewLong0001</yt:videoId>
+  <title>Was kostet das Leben in Uruguay wirklich?</title>
+  <link rel="alternate" href="https://www.youtube.com/watch?v=NewLong0001"/>
+  <published>2026-10-08T15:00:00+00:00</published>
+ </entry>
+</feed>

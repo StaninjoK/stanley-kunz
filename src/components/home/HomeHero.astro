@@ -1,0 +1,357 @@
+---
+import Media from '../Media.astro';
+import Loop from '../Loop.astro';
+import { ICON } from '../../lib/icons';
+import type { LatestItem } from '../../lib/content';
+import poster from '../../assets/media/loop-kalb-poster.jpg';
+import portrait from '../../assets/media/stanley-campo-lachen.jpg';
+import drone from '../../assets/media/stanley-drohne-flug.jpg';
+
+interface Props {
+  latest: LatestItem[];
+  primaryHref: string;
+  primaryLabel: string;
+}
+const { latest, primaryHref, primaryLabel } = Astro.props;
+const KIND: Record<LatestItem['kind'], string> = { story: 'Story', video: 'Video', moment: 'Moment' };
+---
+
+<section class="hero surface-night grain" aria-labelledby="hero-title">
+  <div class="container hero-grid">
+    <div class="copy">
+      <p class="eyebrow hero-eyebrow">Deutschland <span aria-hidden="true">→</span><span class="visually-hidden">nach</span> Uruguay · seit 2022</p>
+      <h1 id="hero-title" class="name">
+        <span class="line">Stanley</span>
+        <span class="line"><em>Kunz</em></span>
+      </h1>
+      <p class="lead">
+        Mit 19 bin ich nach Uruguay ausgewandert. Seitdem baue ich mir hier ein Leben und mehrere Unternehmen auf – und
+        dokumentiere, was dabei wirklich passiert. Auch das, was schiefgeht.
+      </p>
+      <div class="ctas">
+        <a class="btn btn-sun" href={primaryHref}>
+          <span set:html={ICON.play} />
+          {primaryLabel}
+        </a>
+        <a class="btn btn-ghost" href="/ueber-mich/">Meine Geschichte</a>
+      </div>
+    </div>
+
+    <div class="stack" aria-hidden="true">
+      <figure class="frame ratio-916 f-main">
+        <Loop src="/media/loops/kalb.mp4" poster={poster} alt="" sizes="(min-width: 900px) 25vw, 100vw" priority />
+        <figcaption class="cap">Auf meinem Campo · Winter</figcaption>
+      </figure>
+      <figure class="frame ratio-916 f-left">
+        <Media src={portrait} alt="" sizes="(min-width: 900px) 18vw, 1px" widths={[360, 540, 720]} position="50% 25%" />
+        <figcaption class="cap">Weide, Abendsonne</figcaption>
+      </figure>
+      <figure class="frame ratio-916 f-right">
+        <Media src={drone} alt="" sizes="(min-width: 900px) 14vw, 1px" widths={[360, 540]} position="50% 0%" />
+        <figcaption class="cap">Die Drohne</figcaption>
+      </figure>
+    </div>
+  </div>
+
+  {
+    latest.length > 0 && (
+      <div class="ticker">
+        <div class="container ticker-inner">
+          <p class="ticker-label">Zuletzt</p>
+          <ul role="list">
+            {latest.map((item) => (
+              <li>
+                <a href={item.href}>
+                  <span class="kind">{KIND[item.kind]}</span>
+                  <span class="t">{item.title}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    )
+  }
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 100svh;
+    padding-top: calc(var(--header-h) + clamp(1rem, 4vh, 3rem));
+    overflow: hidden;
+  }
+  /* mobile: the main vertical loop becomes the full-bleed background */
+  @media (max-width: 899px) {
+    .stack {
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+    }
+    .stack .f-main {
+      position: absolute;
+      inset: 0;
+      aspect-ratio: auto;
+      border-radius: 0;
+    }
+    .hero .stack .f-main {
+      animation: none;
+    }
+    .stack .f-main::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(180deg, rgba(14, 13, 11, 0.62) 0%, rgba(14, 13, 11, 0.08) 20%, rgba(14, 13, 11, 0.62) 36%, rgba(14, 13, 11, 0.9) 55%, rgba(14, 13, 11, 0.98) 100%);
+    }
+    .stack .f-left,
+    .stack .f-right,
+    .stack .cap {
+      display: none;
+    }
+    .copy {
+      text-shadow: 0 1px 18px rgba(0, 0, 0, 0.45);
+    }
+  }
+  .hero-grid {
+    flex: 1;
+    display: grid;
+    align-items: end;
+    padding-bottom: clamp(2rem, 1rem + 4vh, 4rem);
+  }
+  .copy {
+    max-width: 44rem;
+  }
+  .hero-eyebrow {
+    color: var(--on-night-soft);
+    margin-bottom: 1.4rem;
+  }
+  .name {
+    font-size: var(--fs-mega);
+    font-weight: 420;
+    line-height: 0.88;
+    letter-spacing: -0.045em;
+    color: var(--on-night);
+  }
+  .name .line {
+    display: block;
+  }
+  .name em {
+    font-weight: 330;
+    padding-left: 0.04em;
+  }
+  .lead {
+    margin-top: clamp(1.2rem, 0.8rem + 1.5vw, 2rem);
+    max-width: 36rem;
+    color: var(--on-night-soft);
+    font-size: var(--fs-lead);
+  }
+  .ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: clamp(1.6rem, 1rem + 2vw, 2.5rem);
+  }
+  .ctas .btn-ghost {
+    --btn-fg: var(--on-night);
+    border-color: var(--rule-night-strong);
+  }
+  .ctas .btn-ghost:hover {
+    border-color: var(--on-night);
+  }
+  /* entrance */
+  @media (prefers-reduced-motion: no-preference) {
+    .name .line,
+    .hero-eyebrow,
+    .lead,
+    .ctas {
+      animation: rise 1.1s var(--ease-out) both;
+    }
+    .name .line:nth-child(2) {
+      animation-delay: 90ms;
+    }
+    .lead {
+      animation-delay: 220ms;
+    }
+    .ctas {
+      animation-delay: 320ms;
+    }
+    .stack .frame {
+      animation: frame-in 1.4s var(--ease-out) both;
+    }
+    .stack .f-left {
+      animation-delay: 150ms;
+    }
+    .stack .f-right {
+      animation-delay: 300ms;
+    }
+  }
+  /* Only movement, no fade: the text is painted immediately (good for LCP), then settles into place. */
+  @keyframes rise {
+    from {
+      transform: translateY(18px);
+    }
+  }
+  @keyframes frame-in {
+    from {
+      opacity: 0;
+      transform: translateY(60px) scale(0.97);
+    }
+  }
+
+  /* desktop composition: three vertical frames, like a contact sheet of my phone footage */
+  @media (min-width: 900px) {
+    .hero {
+      min-height: min(100svh, 1000px);
+    }
+    .hero-grid {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 6fr);
+      gap: clamp(2rem, 4vw, 5rem);
+      align-items: center;
+    }
+    .stack {
+      position: relative;
+      height: min(74svh, 760px);
+    }
+    .stack .frame {
+      position: absolute;
+      margin: 0;
+      box-shadow: var(--frame-shadow);
+      background: var(--night-3);
+    }
+    .f-main {
+      right: 12%;
+      top: 0;
+      height: 90%;
+      z-index: 2;
+    }
+    .f-left {
+      left: 4%;
+      bottom: 2%;
+      height: 50%;
+      z-index: 3;
+    }
+    .f-right {
+      right: 0;
+      bottom: -2%;
+      height: 38%;
+      z-index: 3;
+    }
+    .cap {
+      position: absolute;
+      left: 0.6rem;
+      bottom: 0.6rem;
+      padding: 0.3rem 0.55rem;
+      border-radius: 4px;
+      background: rgba(10, 10, 8, 0.6);
+      backdrop-filter: blur(6px);
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      z-index: 2;
+    }
+    /* scroll-linked depth, only where the browser supports it natively (no JS) */
+    @supports (animation-timeline: scroll()) {
+      @media (prefers-reduced-motion: no-preference) {
+        .stack .f-main {
+          animation: frame-in 1.4s var(--ease-out) both, drift-a linear both;
+          animation-timeline: auto, scroll(root);
+          animation-range: normal, 0 100vh;
+        }
+        .stack .f-left {
+          animation: frame-in 1.4s var(--ease-out) 150ms both, drift-b linear both;
+          animation-timeline: auto, scroll(root);
+          animation-range: normal, 0 100vh;
+        }
+        .stack .f-right {
+          animation: frame-in 1.4s var(--ease-out) 300ms both, drift-c linear both;
+          animation-timeline: auto, scroll(root);
+          animation-range: normal, 0 100vh;
+        }
+      }
+    }
+  }
+  @keyframes drift-a {
+    to {
+      translate: 0 -60px;
+    }
+  }
+  @keyframes drift-b {
+    to {
+      translate: 0 -140px;
+    }
+  }
+  @keyframes drift-c {
+    to {
+      translate: 0 -30px;
+    }
+  }
+
+  /* "Zuletzt" ticker */
+  .ticker {
+    border-top: 1px solid var(--rule-night);
+    background: rgba(10, 10, 8, 0.35);
+    backdrop-filter: blur(8px);
+  }
+  .ticker-inner {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    min-height: 64px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .ticker-inner::-webkit-scrollbar {
+    display: none;
+  }
+  .ticker-label {
+    flex: none;
+    font-size: var(--fs-meta);
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--sun);
+  }
+  .ticker ul {
+    display: flex;
+    gap: 2rem;
+  }
+  .ticker li {
+    flex: none;
+  }
+  .ticker a {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    max-width: 28rem;
+    min-height: 44px;
+    align-items: center;
+    text-decoration: none;
+    color: var(--on-night);
+  }
+  .ticker .kind {
+    font-size: var(--fs-meta);
+    font-weight: 650;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--on-night-mute);
+  }
+  .ticker .t {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 550;
+    font-size: 0.95rem;
+  }
+  .ticker a:hover .t {
+    text-decoration: underline;
+    text-decoration-color: var(--sun);
+  }
+  .btn :global(svg) {
+    width: 0.95em;
+  }
+</style>

@@ -1,0 +1,82 @@
+---
+import Media from '../Media.astro';
+import { durationLabel, isPublishedVideo, videoUrl, type Video } from '../../lib/content';
+import { ICON } from '../../lib/icons';
+import { formatDate } from '../../lib/format';
+
+interface Props {
+  video: Video;
+  headingLevel?: 2 | 3;
+}
+const { video, headingLevel = 3 } = Astro.props;
+const d = video.data;
+const H = `h${headingLevel}` as 'h2' | 'h3';
+const live = isPublishedVideo(video);
+const duration = durationLabel(d.duration);
+---
+
+<article class="video-card" data-topics={d.topics.join(' ')}>
+  <a class="hit" href={videoUrl(video)}>
+    <div class="frame ratio-169 zoom thumb">
+      <Media src={d.thumbnail} alt={d.thumbnailAlt} sizes="(min-width: 1100px) 440px, (min-width: 640px) 50vw, 100vw" widths={[480, 720, 960]} />
+      <span class="badge">{live ? <span class="dur"><span set:html={ICON.play} />{duration}</span> : 'Demnächst'}</span>
+    </div>
+    <p class="meta">
+      {live && d.publishDate ? <time datetime={d.publishDate.toISOString()}>{formatDate(d.publishDate)}</time> : <span>Video</span>}
+      {duration && <span>{duration} Min.</span>}
+    </p>
+    <H class="title">{d.title}</H>
+    {d.context && <p class="ctx">{d.context}</p>}
+  </a>
+</article>
+
+<style>
+  .hit {
+    display: grid;
+    gap: 0.6rem;
+    text-decoration: none;
+    color: inherit;
+  }
+  .thumb {
+    margin-bottom: 0.5rem;
+  }
+  .badge {
+    position: absolute;
+    left: 0.7rem;
+    bottom: 0.7rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 999px;
+    background: rgba(12, 11, 9, 0.72);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 650;
+    letter-spacing: 0.04em;
+    backdrop-filter: blur(6px);
+  }
+  .dur {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .dur :global(svg) {
+    width: 0.8rem;
+    height: 0.8rem;
+  }
+  .title {
+    font-size: var(--fs-h4);
+    font-family: var(--font-display);
+    font-weight: 500;
+    line-height: 1.18;
+    letter-spacing: -0.01em;
+  }
+  .hit:hover .title {
+    text-decoration: underline;
+    text-decoration-color: var(--sun);
+    text-underline-offset: 0.14em;
+  }
+  .ctx {
+    color: var(--text-soft);
+    font-size: 0.97rem;
+  }
+</style>

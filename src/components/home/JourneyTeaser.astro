@@ -1,0 +1,150 @@
+---
+import { ICON } from '../../lib/icons';
+import type { JourneyEntry } from '../../lib/content';
+
+interface Props {
+  entries: JourneyEntry[];
+}
+const { entries } = Astro.props;
+// One station per chapter keeps the teaser calm; the full timeline lives on /weg/.
+const picks = ['ausbildung', 'auswandern', 'grundstueck', 'drohne', 'kunz-global', 'kanal']
+  .map((id) => entries.find((e) => e.id === id))
+  .filter((e): e is JourneyEntry => Boolean(e));
+---
+
+<section class="section journey surface-paper-2" aria-labelledby="journey-title">
+  <div class="container">
+    <header class="section-head">
+      <div>
+        <p class="eyebrow">Der Weg</p>
+        <h2 id="journey-title">Von der Ausbildung <em>zum eigenen Campo.</em></h2>
+      </div>
+      <p>Kein Lebenslauf, sondern die Stationen, an denen sich etwas verändert hat – mit allem, was nicht nach Plan lief.</p>
+    </header>
+
+    <ol class="line" role="list">
+      {
+        picks.map((e, i) => (
+          <li class="stop" data-reveal style={`--reveal-delay: ${i}`}>
+            <span class="label">{e.data.label}</span>
+            <span class="dot" aria-hidden="true" />
+            <h3 class="t">{e.data.title}</h3>
+            <p class="x">{e.data.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+
+    <p class="all">
+      <a class="link-arrow" href="/weg/">
+        Den ganzen Weg ansehen <span set:html={ICON.arrow} />
+      </a>
+    </p>
+  </div>
+</section>
+
+<style>
+  .line {
+    display: grid;
+    gap: 0;
+    position: relative;
+  }
+  .stop {
+    position: relative;
+    display: grid;
+    grid-template-columns: 6.5rem 1.5rem minmax(0, 1fr);
+    grid-template-areas:
+      'label dot t'
+      '. . x';
+    column-gap: 0.75rem;
+    padding-bottom: 2rem;
+  }
+  .stop::before {
+    content: '';
+    position: absolute;
+    left: calc(6.5rem + 0.75rem + 0.75rem - 0.5px);
+    top: 0.8rem;
+    bottom: -0.2rem;
+    width: 1px;
+    background: var(--rule-strong);
+  }
+  .stop:last-child::before {
+    display: none;
+  }
+  .label {
+    grid-area: label;
+    padding-top: 0.2rem;
+    font-size: 0.8rem;
+    font-weight: 650;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-mute);
+    text-align: right;
+  }
+  .dot {
+    grid-area: dot;
+    justify-self: center;
+    margin-top: 0.45rem;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--paper-2);
+    border: 2px solid var(--text);
+    z-index: 1;
+  }
+  .stop:nth-child(2) .dot,
+  .stop:last-child .dot {
+    background: var(--sun);
+    border-color: var(--sun);
+  }
+  .t {
+    grid-area: t;
+    font-size: var(--fs-h4);
+    font-family: var(--font-display);
+    font-weight: 500;
+    line-height: 1.2;
+  }
+  .x {
+    grid-area: x;
+    margin-top: 0.4rem;
+    color: var(--text-soft);
+    font-size: 0.97rem;
+    max-width: 36rem;
+  }
+  @media (min-width: 1000px) {
+    .line {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 1.5rem;
+      padding-top: 0.5rem;
+    }
+    .line::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 2.35rem;
+      height: 1px;
+      background: var(--rule-strong);
+    }
+    .stop {
+      grid-template-columns: 1fr;
+      grid-template-areas: 'label' 'dot' 't' 'x';
+      padding-bottom: 0;
+    }
+    .stop::before {
+      display: none;
+    }
+    .label {
+      text-align: left;
+      padding-top: 0;
+      min-height: 1.4rem;
+    }
+    .dot {
+      justify-self: start;
+      margin: 0.5rem 0 1.2rem;
+    }
+  }
+  .all {
+    margin-top: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+  }
+</style>

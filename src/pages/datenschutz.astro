@@ -1,0 +1,93 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { SITE, ANALYTICS } from '../config/site';
+import '../styles/prose.css';
+
+const analytics = ANALYTICS.provider === 'goatcounter' && ANALYTICS.goatcounterCode;
+---
+
+<BaseLayout title="Datenschutz" description="Wie stanley.kunzglobal.com mit personenbezogenen Daten umgeht: keine Cookies, keine Tracker, YouTube erst nach Klick." path="/datenschutz/">
+  <PageHeader eyebrow="Rechtliches" title="Datenschutz" intro="Kurz vorweg: Diese Website setzt keine Cookies, lädt keine Schriften oder Skripte von Drittanbietern und bettet YouTube erst ein, wenn du auf Abspielen klickst." crumbs={[{ name: 'Start', path: '/' }, { name: 'Datenschutz' }]} />
+  <div class="container-text legal">
+    <div class="prose">
+      <h2>Verantwortlicher</h2>
+      <p>
+        Stanley Kunz, Kiyú / Libertad, 80100 San José, Uruguay<br />
+        E-Mail: <a href={`mailto:${SITE.author.email}`}>{SITE.author.email}</a>
+      </p>
+
+      <h2>Hosting und Server-Logfiles</h2>
+      <p>
+        Diese Website wird über GitHub Pages (GitHub, Inc., USA) ausgeliefert. Beim Aufruf verarbeitet der Hosting-Anbieter technisch notwendige
+        Zugriffsdaten wie IP-Adresse, Datum und Uhrzeit, aufgerufene Seite und Browsertyp, um die Website sicher und stabil bereitzustellen
+        (berechtigtes Interesse). Ich selbst werte diese Daten nicht aus und führe sie nicht mit anderen Daten zusammen.
+      </p>
+
+      <h2>Cookies und Schriften</h2>
+      <p>Diese Website setzt keine Cookies. Alle Schriften und Skripte werden vom eigenen Server geladen; dabei werden keine Daten an Dritte übermittelt.</p>
+
+      <h2>Reichweitenmessung</h2>
+      {
+        analytics ? (
+          <p>
+            Zur Reichweitenmessung nutze ich GoatCounter. GoatCounter verwendet keine Cookies und speichert keine IP-Adressen oder anderen
+            personenbezogenen Daten; erfasst werden nur aggregierte Angaben wie aufgerufene Seite, Herkunftsseite, Browser, Bildschirmgröße und
+            Land. Rechtsgrundlage ist mein berechtigtes Interesse, zu verstehen, welche Inhalte gelesen werden.
+          </p>
+        ) : (
+          <p>Derzeit findet keine Reichweitenmessung statt. Sollte sich das ändern, wird diese Erklärung vorher angepasst.</p>
+        )
+      }
+
+      <h2>YouTube-Videos</h2>
+      <p>
+        Videos werden zunächst nur als Vorschaubild von diesem Server angezeigt. Erst wenn du auf „Abspielen“ klickst, wird das Video von YouTube
+        (Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland) im erweiterten Datenschutzmodus über youtube-nocookie.com geladen.
+        Ab diesem Moment gelten die <a href="https://policies.google.com/privacy" rel="noopener">Datenschutzbestimmungen von Google</a>; dabei
+        können Daten auch in die USA übertragen werden. Rechtsgrundlage ist deine Einwilligung durch den Klick.
+      </p>
+
+      <h2>Links zu sozialen Netzwerken</h2>
+      <p>
+        Links zu YouTube, Instagram, Facebook, Threads, Bluesky, Pinterest und weiteren Plattformen sind einfache Links. Es werden keine Plugins
+        geladen und keine Daten übertragen, solange du nicht auf einen Link klickst. Das gilt auch für die Teilen-Buttons.
+      </p>
+
+      <h2>Kontakt per E-Mail</h2>
+      <p>Wenn du mir schreibst, verwende ich deine Angaben nur, um deine Nachricht zu beantworten.</p>
+
+      <h2>Deine Rechte</h2>
+      <p>
+        Du hast das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung deiner Daten, auf Widerspruch sowie auf
+        Datenübertragbarkeit und kannst eine erteilte Einwilligung jederzeit widerrufen. Außerdem kannst du dich bei einer
+        Datenschutz-Aufsichtsbehörde beschweren. Schreib mir dazu einfach eine E-Mail.
+      </p>
+
+      <p class="stand">Stand: Oktober 2026</p>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .legal {
+    padding-bottom: var(--section);
+  }
+  .legal .prose {
+    font-family: var(--font-text);
+    font-size: 1.02rem;
+  }
+  .legal .prose :global(p:first-child::first-letter) {
+    float: none;
+    font-size: inherit;
+    padding: 0;
+  }
+  .legal .prose :global(h2) {
+    margin-top: 2em;
+    font-size: 1.35rem;
+  }
+  .stand {
+    color: var(--text-mute);
+    font-size: var(--fs-small);
+  }
+</style>

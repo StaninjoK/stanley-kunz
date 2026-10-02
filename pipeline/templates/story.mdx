@@ -1,0 +1,49 @@
+---
+slug: kurzer-sprechender-slug
+title: "Konkreter Titel, der die Frage oder Geschichte benennt"
+seoTitle: "Kürzere Variante für Google (≤ 60 Zeichen)"
+description: "70–165 Zeichen. Worum geht es, für wen, was erfährt man – ohne Floskeln."
+dek: "Ein bis zwei Sätze in Stanleys Stimme, die neugierig machen. Gern ein echtes Zitat aus dem Video."
+kind: story            # story | guide (Suchartikel) | essay
+publishDate: 2026-10-09
+risk: low              # low | medium | high  (siehe AGENT.md §5)
+# reviewedBy: "Stanley Kunz"   # Pflicht bei risk: high – nur nach echter Freigabe eintragen
+topics: [auswandern]   # 1–4 aus src/config/taxonomy.ts
+hero:
+  src: ../../../src/assets/media/DATEI.jpg      # im Inbox-Ordner; promote schreibt den Pfad um
+  alt: "Was ist zu sehen? Konkret, ohne „Bild von“."
+  position: "50% 40%"
+video: slug-des-videos
+projects: []
+summary:
+  - "2–5 Sätze, die die Story zusammenfassen. Jeder Satz ist eine belegte Aussage."
+keyFacts:
+  - { label: "Beispiel", value: "nur belegte Werte" }
+faq: []                # nur echte Fragen, die im Material beantwortet werden
+sources: []            # externe Fakten: { title, url, publisher }
+provenance:
+  type: video
+  origin: "YouTube/Fertig/<Ordner> (Transkript DE)"
+  transcriptChecked: false   # erst nach `npm run content:verify` auf true setzen
+keywords: []
+social:
+  linkPolicy: none     # deep-dive bei Informationswert, none bei Unterhaltung
+---
+
+import Figure from '~/components/story/Figure.astro';
+import Pullquote from '~/components/story/Pullquote.astro';
+import Aside from '~/components/story/Aside.astro';
+
+Einstieg: direkt in die Situation oder die Frage. Kein „In meinem heutigen Video…“.
+
+## Zwischenüberschrift, die eine Aussage ist
+
+Absätze von 2–5 Sätzen. Persönliche Erfahrung in der Ich-Form. Fakten von außen nur mit Quelle.
+
+<Pullquote cite="Stanley Kunz">Ein Satz, der wörtlich im Transkript steht.</Pullquote>
+
+<Figure src={import('../../../src/assets/media/DATEI.jpg')} alt="Konkrete Bildbeschreibung." caption="Optional, nur wenn sie etwas ergänzt." ratio="wide" />
+
+<Aside title="Was ich heute anders machen würde">
+Learnings, Fehler, konkrete Tipps – nur wenn Stanley sie selbst so gesagt hat.
+</Aside>

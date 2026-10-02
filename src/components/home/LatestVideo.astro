@@ -1,0 +1,181 @@
+---
+import VideoFacade from '../VideoFacade.astro';
+import VideoCard from '../cards/VideoCard.astro';
+import { ICON } from '../../lib/icons';
+import { SITE } from '../../config/site';
+import { isPublishedVideo, storyUrl, videoUrl, youtubeWatchUrl, type Story, type Video } from '../../lib/content';
+
+interface Props {
+  video: Video;
+  story?: Story | undefined;
+  more: Video[];
+}
+const { video, story, more } = Astro.props;
+const d = video.data;
+const live = isPublishedVideo(video);
+const chapters = d.chapters.slice(1, 7);
+---
+
+<section class="section latest" aria-labelledby="latest-title">
+  <div class="container">
+    <div class="grid">
+      <div class="player" data-reveal>
+        <VideoFacade video={video} sizes="(min-width: 1100px) 820px, 100vw" />
+      </div>
+      <div class="info" data-reveal style="--reveal-delay: 1">
+        <p class="eyebrow">{live ? 'Neuestes Video' : 'Nächstes Video'}</p>
+        <h2 id="latest-title" class="title"><a href={videoUrl(video)}>{d.title}</a></h2>
+        {d.context && <p class="ctx">{d.context}</p>}
+        {
+          chapters.length > 0 && (
+            <ol class="chapters" role="list">
+              {chapters.map((c) => (
+                <li>
+                  {live && d.youtubeId ? (
+                    <a href={youtubeWatchUrl(d.youtubeId, c.time)} rel="noopener" target="_blank" data-track="chapter-click">
+                      <span class="time">{c.time}</span>
+                      <span>{c.title}</span>
+                    </a>
+                  ) : (
+                    <span class="row">
+                      <span class="time">{c.time}</span>
+                      <span>{c.title}</span>
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ol>
+          )
+        }
+        <div class="links">
+          {story && (
+            <a class="link-arrow" href={storyUrl(story)}>
+              Die Story zum Nachlesen <span set:html={ICON.arrow} />
+            </a>
+          )}
+          <a class="link-arrow" href={live && d.youtubeId ? youtubeWatchUrl(d.youtubeId) : SITE.youtube.channelUrl} rel="noopener" target="_blank" data-track="outbound-youtube-latest">
+            {live ? 'Auf YouTube ansehen' : 'Zum YouTube-Kanal'} <span set:html={ICON.arrowUpRight} />
+          </a>
+        </div>
+      </div>
+    </div>
+
+    {
+      more.length > 0 && (
+        <div class="more">
+          <div class="more-head">
+            <h3 class="more-title">Weitere Videos</h3>
+            <a class="link-arrow" href="/videos/">
+              Alle Videos <span set:html={ICON.arrow} />
+            </a>
+          </div>
+          <div class="more-grid">
+            {more.map((v, i) => (
+              <div data-reveal style={`--reveal-delay: ${i}`}>
+                <VideoCard video={v} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    gap: clamp(1.75rem, 1rem + 3vw, 4rem);
+    align-items: center;
+  }
+  @media (min-width: 1000px) {
+    .grid {
+      grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    }
+  }
+  .eyebrow {
+    margin-bottom: 1rem;
+  }
+  .title {
+    font-size: var(--fs-h2);
+    line-height: 1.02;
+  }
+  .title a {
+    text-decoration: none;
+  }
+  .title a:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--sun);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.12em;
+  }
+  .ctx {
+    margin-top: 1rem;
+    color: var(--text-soft);
+    font-size: var(--fs-lead);
+    line-height: 1.45;
+  }
+  .chapters {
+    margin-top: 1.6rem;
+    border-top: 1px solid var(--rule);
+  }
+  .chapters li {
+    border-bottom: 1px solid var(--rule);
+  }
+  .chapters a,
+  .chapters .row {
+    display: grid;
+    grid-template-columns: 3.4rem 1fr;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.6rem 0;
+    min-height: 44px;
+    font-size: 0.97rem;
+    text-decoration: none;
+  }
+  .chapters a:hover span:last-child {
+    text-decoration: underline;
+    text-decoration-color: var(--sun);
+  }
+  .time {
+    font-variant-numeric: tabular-nums;
+    font-size: 0.82rem;
+    font-weight: 650;
+    color: var(--text-mute);
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 1.75rem;
+    margin-top: 1.75rem;
+  }
+  .more {
+    margin-top: clamp(3.5rem, 2.5rem + 4vw, 6rem);
+  }
+  .more-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding-bottom: 1.2rem;
+    margin-bottom: 1.8rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .more-title {
+    font-size: var(--fs-h3);
+  }
+  .more-grid {
+    display: grid;
+    gap: 2.2rem 1.5rem;
+  }
+  @media (min-width: 640px) {
+    .more-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1100px) {
+    .more-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

@@ -1,0 +1,90 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HomeHero from '../components/home/HomeHero.astro';
+import LatestVideo from '../components/home/LatestVideo.astro';
+import StoriesSection from '../components/home/StoriesSection.astro';
+import MomentsRail from '../components/home/MomentsRail.astro';
+import ProjectsList from '../components/home/ProjectsList.astro';
+import JourneyTeaser from '../components/home/JourneyTeaser.astro';
+import FollowSection from '../components/home/FollowSection.astro';
+import { SITE } from '../config/site';
+import { TOPICS, topicPath } from '../config/taxonomy';
+import { getJourney, getMoments, getProjects, getStories, getVideos, latestItems, storyForVideo, topicCounts, videoUrl } from '../lib/content';
+
+const [stories, videos, moments, projects, journey, latest, topics] = await Promise.all([
+  getStories(),
+  getVideos(),
+  getMoments(),
+  getProjects(),
+  getJourney(),
+  latestItems(4),
+  topicCounts(),
+]);
+const [leadVideo, ...moreVideos] = videos;
+const leadStory = leadVideo ? await storyForVideo(leadVideo.id) : undefined;
+const featuredProjects = projects.filter((p) => p.data.featured);
+---
+
+<BaseLayout title={SITE.name} description={SITE.description} path="/" overlayHeader>
+  <HomeHero
+    latest={latest}
+    primaryHref={leadVideo ? videoUrl(leadVideo) : '/videos/'}
+    primaryLabel={leadVideo ? 'Neuestes Video' : 'Videos ansehen'}
+  />
+
+  {leadVideo && <LatestVideo video={leadVideo} story={leadStory} more={moreVideos.slice(0, 3)} />}
+
+  <StoriesSection stories={stories} />
+
+  {moments.length > 0 && <MomentsRail moments={moments.slice(0, 10)} />}
+
+  <ProjectsList projects={featuredProjects} />
+
+  <JourneyTeaser entries={journey} />
+
+  <section class="section-tight topics" aria-labelledby="topics-title">
+    <div class="container">
+      <div class="topics-inner">
+        <h2 id="topics-title" class="topics-title">Themen</h2>
+        <ul role="list" class="chips">
+          {
+            topics.map((t) => (
+              <li>
+                <a class="chip" href={topicPath(t.id)}>
+                  {TOPICS[t.id].label} <span class="count">{t.count}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <FollowSection />
+</BaseLayout>
+
+<style>
+  .topics {
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .topics-inner {
+    display: grid;
+    gap: 1.25rem;
+    align-items: center;
+  }
+  @media (min-width: 900px) {
+    .topics-inner {
+      grid-template-columns: 12rem 1fr;
+    }
+  }
+  .topics-title {
+    font-size: var(--fs-h3);
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+</style>

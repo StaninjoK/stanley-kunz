@@ -1,0 +1,89 @@
+---
+import { ICON, BRAND_ICON } from '../lib/icons';
+import { abs } from '../lib/schema';
+
+interface Props {
+  path: string;
+  title: string;
+}
+const { path, title } = Astro.props;
+// UTM tags let analytics show which share channel brings readers back, without any tracking script on the share itself.
+const url = (src: string) => `${abs(path)}?utm_source=${src}&utm_medium=share`;
+const enc = encodeURIComponent;
+const links = [
+  { id: 'whatsapp', label: 'WhatsApp', href: `https://wa.me/?text=${enc(`${title} ${url('whatsapp')}`)}` },
+  { id: 'linkedin', label: 'LinkedIn', href: `https://www.linkedin.com/sharing/share-offsite/?url=${enc(url('linkedin'))}` },
+  { id: 'facebook', label: 'Facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${enc(url('facebook'))}` },
+  { id: 'x', label: 'X', href: `https://x.com/intent/post?text=${enc(title)}&url=${enc(url('x'))}` },
+];
+---
+
+<div class="share">
+  <p class="label">Teilen</p>
+  <ul role="list">
+    <li>
+      <button type="button" class="s-btn copy" data-copy-link={abs(path)}>
+        <span set:html={ICON.link} /><span data-copy-label>Link kopieren</span>
+      </button>
+    </li>
+    {
+      links.map((l) => (
+        <li>
+          <a class="s-btn icon" href={l.href} rel="noopener" target="_blank" data-track={`share-${l.id}`}>
+            <span set:html={BRAND_ICON[l.id] ?? ''} />
+            <span class="visually-hidden">Auf {l.label} teilen</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<style>
+  .share {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem 1rem;
+  }
+  .label {
+    font-size: var(--fs-meta);
+    font-weight: 650;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-mute);
+  }
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .s-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    min-width: 44px;
+    height: 44px;
+    padding: 0 0.85rem;
+    border-radius: 999px;
+    border: 1px solid var(--rule-strong);
+    background: transparent;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+  }
+  .s-btn.icon {
+    padding: 0;
+  }
+  .s-btn:hover {
+    background: var(--text);
+    color: var(--paper);
+    border-color: var(--text);
+  }
+  .s-btn :global(svg) {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+</style>

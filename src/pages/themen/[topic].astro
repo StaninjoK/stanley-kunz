@@ -1,0 +1,129 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import StoryCard from '../../components/cards/StoryCard.astro';
+import VideoCard from '../../components/cards/VideoCard.astro';
+import MomentCard from '../../components/cards/MomentCard.astro';
+import { TOPICS, TOPIC_IDS, type TopicId } from '../../config/taxonomy';
+import { getMoments, getStories, getVideos } from '../../lib/content';
+import { breadcrumbSchema } from '../../lib/schema';
+
+export async function getStaticPaths() {
+  const [stories, videos, moments] = await Promise.all([getStories(), getVideos(), getMoments()]);
+  return TOPIC_IDS.map((topic) => ({
+    params: { topic },
+    props: {
+      topic,
+      stories: stories.filter((s) => s.data.topics.includes(topic)),
+      videos: videos.filter((v) => v.data.topics.includes(topic)),
+      moments: moments.filter((m) => m.data.topics.includes(topic)),
+    },
+  })).filter((p) => p.props.stories.length + p.props.videos.length + p.props.moments.length > 0);
+}
+
+const { topic, stories, videos, moments } = Astro.props as {
+  topic: TopicId;
+  stories: Awaited<ReturnType<typeof getStories>>;
+  videos: Awaited<ReturnType<typeof getVideos>>;
+  moments: Awaited<ReturnType<typeof getMoments>>;
+};
+const t = TOPICS[topic];
+const path = `/themen/${topic}/`;
+const renderedMoments = await Promise.all(moments.map(async (m) => ({ m, Content: (await render(m)).Content })));
+// Thin topic pages (only one or two items) are kept out of the index until they have substance.
+const thin = stories.length + videos.length < 2;
+---
+
+<BaseLayout
+  title={`${t.label} – Videos und Stories`}
+  description={`${t.description} Alle Videos, Stories und Momente von Stanley Kunz zum Thema ${t.label}.`.slice(0, 168)}
+  path={path}
+  ogImage={`/og/themen/${topic}.jpg`}
+  noindex={thin}
+  schema={[
+    breadcrumbSchema([
+      { name: 'Start', path: '/' },
+      { name: 'Themen', path: '/themen/' },
+      { name: t.label, path },
+    ]),
+  ]}
+>
+  <PageHeader eyebrow="Thema" title={t.label} intro={t.description} crumbs={[{ name: 'Start', path: '/' }, { name: 'Themen', path: '/themen/' }, { name: t.label }]} />
+
+  <div class="container wrap">
+    {
+      stories.length > 0 && (
+        <section aria-labelledby="t-stories">
+          <h2 id="t-stories" class="sec">Stories</h2>
+          <div class="grid">
+            {stories.map((s) => (
+              <StoryCard story={s} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+    {
+      videos.length > 0 && (
+        <section aria-labelledby="t-videos">
+          <h2 id="t-videos" class="sec">Videos</h2>
+          <div class="grid">
+            {videos.map((v) => (
+              <VideoCard video={v} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+    {
+      renderedMoments.length > 0 && (
+        <section aria-labelledby="t-moments">
+          <h2 id="t-moments" class="sec">Momente</h2>
+          <ul role="list" class="moments">
+            {renderedMoments.map(({ m, Content }) => (
+              <li>
+                <MomentCard moment={m} variant="full" sizes="(min-width: 1100px) 300px, 45vw">
+                  <Content />
+                </MomentCard>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .wrap {
+    display: grid;
+    gap: clamp(3rem, 2rem + 3vw, 5rem);
+    padding-bottom: var(--section);
+  }
+  .sec {
+    font-size: var(--fs-h3);
+    padding-bottom: 1rem;
+    margin-bottom: 1.75rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .grid {
+    display: grid;
+    gap: 2.5rem 1.5rem;
+  }
+  @media (min-width: 640px) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1100px) {
+    .grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .moments {
+    display: grid;
+    gap: 2rem 1.25rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  }
+</style>

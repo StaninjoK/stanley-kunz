@@ -1,0 +1,44 @@
+---
+interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+---
+
+<aside class="callout" data-reveal>
+  <p class="callout-title">{title}</p>
+  <div class="callout-body"><slot /></div>
+</aside>
+
+<style>
+  .callout {
+    margin-block: clamp(2rem, 1.5rem + 2vw, 3rem);
+    padding: clamp(1.25rem, 1rem + 1.2vw, 2rem);
+    border-radius: var(--radius);
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+  }
+  .callout-title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.7rem;
+    font-family: var(--font-text);
+    font-size: var(--fs-meta);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sun-ink);
+  }
+  .callout-title::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--sun);
+  }
+  .callout-body :global(p) {
+    margin: 0;
+    font-size: 1.04em;
+  }
+</style>

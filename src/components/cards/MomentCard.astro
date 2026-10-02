@@ -1,0 +1,181 @@
+---
+import Media from '../Media.astro';
+import Loop from '../Loop.astro';
+import { TOPICS } from '../../config/taxonomy';
+import { formatMonth } from '../../lib/format';
+import { isVisibleVideo, videoUrl, type Moment } from '../../lib/content';
+import { getEntry } from 'astro:content';
+
+interface Props {
+  moment: Moment;
+  sizes?: string;
+  /** rail: text over the media (home page rail). full: media on top, full text below (Momente page). */
+  variant?: 'rail' | 'full';
+}
+const { moment, sizes = '(min-width: 900px) 300px, 72vw', variant = 'rail' } = Astro.props;
+const d = moment.data;
+const video = d.video ? await getEntry('videos', d.video.id) : undefined;
+const videoHref = video && isVisibleVideo(video) ? `${videoUrl(video)}${d.at ? `#t-${d.at.replace(':', '-')}` : ''}` : undefined;
+const storyHref = d.story ? `/stories/${d.story.id}/` : undefined;
+---
+
+<article class:list={['moment', `v-${variant}`, d.media ? 'has-media' : 'is-text']} id={moment.id} data-date={d.date.toISOString()} data-topics={d.topics.join(' ')}>
+  {
+    d.media && (
+      <div class="frame ratio-916 media">
+        {d.media.type === 'loop' ? (
+          <Loop src={d.media.src} poster={d.media.poster} alt={d.media.alt} sizes={sizes} />
+        ) : (
+          <Media src={d.media.src} alt={d.media.alt} sizes={sizes} position={d.media.position} widths={[360, 540, 720]} />
+        )}
+      </div>
+    )
+  }
+  <div class="text">
+    <p class="meta">
+      <span class="new-badge">Neu</span>
+      <time datetime={d.date.toISOString()}>{formatMonth(d.date)}</time>
+      <span>{TOPICS[d.topics[0]!].label}</span>
+    </p>
+    <h3 class="title">{d.title}</h3>
+    <div class="body"><slot /></div>
+    {
+      (videoHref || storyHref) && (
+        <p class="links">
+          {videoHref && <a href={videoHref}>{d.at ? `Im Video bei ${d.at}` : 'Zum Video'}</a>}
+          {storyHref && <a href={storyHref}>Zur Story</a>}
+        </p>
+      )
+    }
+  </div>
+</article>
+
+<style>
+  .moment {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .has-media .media {
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .has-media .media::after {
+    content: '';
+    position: absolute;
+    inset: 55% 0 0 0;
+    background: linear-gradient(180deg, transparent, rgba(8, 8, 6, 0.86));
+    pointer-events: none;
+  }
+  .has-media .text {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: 1.1rem 1.1rem 1.2rem;
+    color: #fff;
+    --text-mute: rgba(255, 255, 255, 0.72);
+  }
+  .has-media .body {
+    display: none;
+  }
+  /* full variant: media above, all text below */
+  .v-full.has-media .media {
+    border-radius: var(--radius);
+  }
+  .v-full.has-media .media::after {
+    display: none;
+  }
+  .v-full.has-media .text {
+    position: static;
+    padding: 1rem 0.1rem 0;
+    color: inherit;
+    --text-mute: inherit;
+  }
+  .v-full.has-media .body {
+    display: block;
+    color: var(--text-soft);
+    font-size: 0.98rem;
+  }
+  .v-full.has-media .meta {
+    color: var(--text-mute);
+  }
+  .v-full.is-text {
+    aspect-ratio: auto;
+    background: var(--paper-2);
+    border: 1px solid var(--rule);
+  }
+  .v-full.is-text .links {
+    margin-top: 1.2rem;
+  }
+  .is-text {
+    aspect-ratio: 9 / 16;
+    background: var(--paper);
+    --text: #1a1915;
+    --text-mute: #615c52;
+    --text-soft: #4d4940;
+    color: var(--text);
+    padding: 1.4rem 1.3rem;
+  }
+  :global(.surface-night) .is-text {
+    background: var(--paper-2);
+  }
+  .is-text .text {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .is-text .title {
+    font-size: clamp(1.5rem, 1.2rem + 1vw, 1.95rem);
+    line-height: 1.08;
+    margin-bottom: 1rem;
+  }
+  .is-text .body {
+    font-family: var(--font-display);
+    font-size: 1.04rem;
+    line-height: 1.5;
+    color: var(--text-soft);
+  }
+  .is-text .links {
+    margin-top: auto;
+  }
+  .title {
+    font-size: 1.3rem;
+    line-height: 1.12;
+  }
+  .meta {
+    margin-bottom: 0.55rem;
+  }
+  .new-badge {
+    display: none;
+    padding: 0.18rem 0.45rem;
+    border-radius: 4px;
+    background: var(--sun);
+    color: var(--night);
+    letter-spacing: 0.08em;
+  }
+  .is-new .new-badge {
+    display: inline-block;
+  }
+  .is-new .new-badge + *::before {
+    display: none;
+  }
+  .new-badge + time::before {
+    display: none;
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1rem;
+    margin-top: 0.7rem;
+    font-size: 0.86rem;
+    font-weight: 600;
+  }
+  .links a {
+    position: relative;
+    z-index: 2;
+    text-decoration: underline;
+    text-decoration-color: var(--sun);
+    text-underline-offset: 0.2em;
+  }
+</style>

@@ -1,0 +1,13 @@
+{
+  "extends": "astro/tsconfigs/strictest",
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist", "node_modules", "content-inbox", "desk", "test-results", "playwright-report"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": { "~/*": ["src/*"] },
+    "exactOptionalPropertyTypes": false,
+    "noPropertyAccessFromIndexSignature": false,
+    "allowJs": true,
+    "checkJs": false
+  }
+}

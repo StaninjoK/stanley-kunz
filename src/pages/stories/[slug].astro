@@ -1,0 +1,783 @@
+---
+import { render, getEntry } from 'astro:content';
+import { getImage } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Media from '../../components/Media.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import ShareLinks from '../../components/ShareLinks.astro';
+import VideoFacade from '../../components/VideoFacade.astro';
+import StoryCard from '../../components/cards/StoryCard.astro';
+import { TOPICS, topicPath } from '../../config/taxonomy';
+import { SITE } from '../../config/site';
+import { ICON } from '../../lib/icons';
+import { formatDate } from '../../lib/format';
+import {
+  getStories,
+  getArchivedStories,
+  readingMinutes,
+  relatedStories,
+  resolveVideo,
+  isPublishedVideo,
+  videoUrl,
+  storyUrl,
+  type Story,
+} from '../../lib/content';
+import { articleSchema, breadcrumbSchema, faqSchema, abs } from '../../lib/schema';
+import portrait from '../../assets/media/stanley-portrait.jpg';
+import '../../styles/prose.css';
+
+export async function getStaticPaths() {
+  const stories = [...(await getStories()), ...(await getArchivedStories())];
+  return stories.map((story) => ({ params: { slug: story.id }, props: { story } }));
+}
+
+interface Props {
+  story: Story;
+}
+const { story } = Astro.props;
+const d = story.data;
+const { Content, headings } = await render(story);
+const path = storyUrl(story);
+const minutes = readingMinutes(story.body);
+const words = (story.body ?? '').split(/\s+/).length;
+const video = await resolveVideo(d.video);
+const related = await relatedStories(story, 3);
+const projects = (await Promise.all(d.projects.map((p) => getEntry('projects', p.id)))).filter(Boolean);
+const primaryTopic = TOPICS[d.topics[0]!];
+const toc = headings.filter((h) => h.depth === 2);
+const heroLandscape = d.hero.src.width > d.hero.src.height;
+const ogImage = `/og/stories/${story.id}.jpg`;
+const heroAbs = abs((await getImage({ src: d.hero.src, width: 1600, format: 'jpg' })).src);
+
+const schema = [
+  articleSchema({
+    path,
+    headline: d.title,
+    description: d.description,
+    image: heroAbs,
+    datePublished: d.publishDate,
+    dateModified: d.updatedDate,
+    keywords: [...d.topics.map((t) => TOPICS[t].label), ...d.keywords],
+    section: primaryTopic.label,
+    wordCount: words,
+    videoPath: video && isPublishedVideo(video) ? videoUrl(video) : undefined,
+  }),
+  breadcrumbSchema([
+    { name: 'Start', path: '/' },
+    { name: 'Stories', path: '/stories/' },
+    { name: d.title, path },
+  ]),
+  ...(d.faq.length ? [faqSchema(d.faq)] : []),
+];
+---
+
+<BaseLayout
+  title={d.seoTitle ?? d.title}
+  description={d.description}
+  path={path}
+  ogImage={ogImage}
+  ogImageAlt={d.hero.alt}
+  ogType="article"
+  schema={schema}
+  noindex={d.status === 'archived'}
+  article={{ published: d.publishDate, modified: d.updatedDate, section: primaryTopic.label, tags: d.topics.map((t) => TOPICS[t].label) }}
+>
+  <div class="progress" aria-hidden="true"></div>
+
+  <article class="story" data-pagefind-body>
+    <header class:list={['head container', { landscape: heroLandscape }]}>
+      <div class="head-text">
+        <Breadcrumbs items={[{ name: 'Start', path: '/' }, { name: 'Stories', path: '/stories/' }, { name: primaryTopic.label }]} />
+        <h1 class="title">{d.title}</h1>
+        <p class="dek">{d.dek}</p>
+        <div class="byline">
+          <span class="avatar frame"><Media src={portrait} alt="" sizes="48px" widths={[96]} position="50% 20%" /></span>
+          <span class="by">
+            <a href="/ueber-mich/" rel="author">{SITE.author.name}</a>
+            <span class="meta">
+              <time datetime={d.publishDate.toISOString()}>{formatDate(d.publishDate)}</time>
+              <span>{minutes} Min. Lesezeit</span>
+              {d.updatedDate && <span>Aktualisiert {formatDate(d.updatedDate)}</span>}
+            </span>
+          </span>
+        </div>
+      </div>
+      <figure class="head-media">
+        <div class="frame">
+          <Media
+            src={d.hero.src}
+            alt={d.hero.alt}
+            sizes={heroLandscape ? '(min-width: 1440px) 1340px, 100vw' : '(min-width: 1000px) 46vw, 100vw'}
+            position={d.hero.position}
+            priority
+          />
+        </div>
+        {d.hero.caption && <figcaption>{d.hero.caption}</figcaption>}
+      </figure>
+    </header>
+
+    <div class="layout container">
+      <div class="summary-wrap">
+        {
+          d.summary.length > 0 && (
+            <section class="summary" aria-labelledby="summary-title">
+              <h2 id="summary-title" class="summary-title">Kurz gesagt</h2>
+              <ul role="list">
+                {d.summary.map((line) => (
+                  <li>{line}</li>
+                ))}
+              </ul>
+            </section>
+          )
+        }
+
+      </div>
+      <div class="main">
+        <div class="prose">
+          <Content />
+        </div>
+
+        {
+          d.faq.length > 0 && (
+            <section class="faq" aria-labelledby="faq-title">
+              <h2 id="faq-title" class="block-title">Häufige Fragen</h2>
+              {d.faq.map((f) => (
+                <details>
+                  <summary>
+                    <span>{f.q}</span>
+                    <span class="plus" aria-hidden="true" />
+                  </summary>
+                  <p>{f.a}</p>
+                </details>
+              ))}
+            </section>
+          )
+        }
+
+        {
+          d.sources.length > 0 && (
+            <section class="sources" aria-labelledby="sources-title">
+              <h2 id="sources-title" class="block-title">Quellen</h2>
+              <ol>
+                {d.sources.map((s) => (
+                  <li>
+                    <a href={s.url} rel="noopener">
+                      {s.title}
+                    </a>
+                    {s.publisher && <span> – {s.publisher}</span>}
+                  </li>
+                ))}
+              </ol>
+            </section>
+          )
+        }
+
+        <p class="note">
+          {d.provenance.type === 'video' ? 'Diese Story basiert auf meinen eigenen Videoaufnahmen und dem, was ich darin erzählt habe.' : 'Diese Story habe ich aufgeschrieben.'}
+          {' '}Erfahrungen sind meine persönlichen; Zahlen und Preise gelten für den genannten Zeitpunkt.
+        </p>
+
+        <div class="end-row">
+          <ul role="list" class="chips">
+            {
+              d.topics.map((t) => (
+                <li>
+                  <a class="chip" href={topicPath(t)}>
+                    {TOPICS[t].label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+          <ShareLinks path={path} title={d.title} />
+        </div>
+      </div>
+
+      <aside class="rail" aria-label="Zur Story">
+        <div class="rail-inner">
+          {
+            d.keyFacts.length > 0 && (
+              <section class="facts">
+                <h2 class="rail-title">Auf einen Blick</h2>
+                <dl>
+                  {d.keyFacts.map((f) => (
+                    <div>
+                      <dt>{f.label}</dt>
+                      <dd>{f.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
+            )
+          }
+          {
+            toc.length > 2 && (
+              <nav class="toc" aria-label="Inhalt">
+                <h2 class="rail-title">Inhalt</h2>
+                <ol role="list">
+                  {toc.map((h) => (
+                    <li>
+                      <a href={`#${h.slug}`}>{h.text}</a>
+                    </li>
+                  ))}
+                </ol>
+              </nav>
+            )
+          }
+          {
+            video && (
+              <a class="mini-video" href="#video">
+                <span class="mv-thumb frame ratio-169">
+                  <Media src={video.data.thumbnail} alt="" sizes="300px" widths={[320, 640]} />
+                </span>
+                <span class="mv-k">{isPublishedVideo(video) ? 'Das Video dazu' : 'Video erscheint demnächst'}</span>
+                <span class="mv-t">{video.data.title}</span>
+              </a>
+            )
+          }
+        </div>
+      </aside>
+    </div>
+
+    {
+      video && (
+        <section id="video" class="video-block surface-night grain" aria-labelledby="video-title">
+          <div class="container vb-grid">
+            <div class="vb-text">
+              <p class="eyebrow">Die Geschichte als Video</p>
+              <h2 id="video-title" class="vb-title">
+                <a href={videoUrl(video)}>{video.data.title}</a>
+              </h2>
+              {video.data.context && <p class="vb-ctx">{video.data.context}</p>}
+            </div>
+            <VideoFacade video={video} sizes="(min-width: 1100px) 760px, 100vw" />
+          </div>
+        </section>
+      )
+    }
+
+    <section class="author container" aria-label="Über den Autor">
+      <div class="author-card">
+        <span class="author-img frame"><Media src={portrait} alt="Porträt von Stanley Kunz im weißen Hemd." sizes="120px" widths={[240]} position="50% 20%" /></span>
+        <div>
+          <p class="eyebrow">Geschrieben von</p>
+          <p class="author-name">Stanley Kunz</p>
+          <p class="author-bio">
+            Mit 19 aus Deutschland nach Uruguay ausgewandert. Baut hier Unternehmen in Landwirtschaft, Agrardrohnen, Software und Handel auf – und
+            dokumentiert, was dabei wirklich passiert.
+          </p>
+          <a class="link-arrow" href="/ueber-mich/">Meine Geschichte <span set:html={ICON.arrow} /></a>
+        </div>
+      </div>
+      {
+        projects.length > 0 && (
+          <div class="proj">
+            <p class="eyebrow">Projekte in dieser Story</p>
+            <ul role="list">
+              {projects.map((p) => (
+                <li>
+                  <a href={`/projekte/#${p!.id}`}>
+                    <span class="p-name">{p!.data.name}</span>
+                    <span class="p-cat">{p!.data.category}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+    </section>
+  </article>
+
+  {
+    related.length > 0 && (
+      <section class="section related surface-paper-2" aria-labelledby="related-title">
+        <div class="container">
+          <h2 id="related-title" class="related-title">Weiterlesen</h2>
+          <div class="related-grid">
+            {related.map((s) => (
+              <StoryCard story={s} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .progress {
+    position: fixed;
+    inset: 0 0 auto 0;
+    height: 3px;
+    z-index: 70;
+    background: var(--sun);
+    transform-origin: 0 50%;
+    transform: scaleX(0);
+  }
+  @supports (animation-timeline: scroll()) {
+    .progress {
+      animation: grow linear both;
+      animation-timeline: scroll(root);
+    }
+  }
+  @keyframes grow {
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  /* header */
+  .head {
+    display: grid;
+    gap: clamp(1.5rem, 1rem + 2vw, 3rem);
+    padding-block: clamp(2rem, 1rem + 4vw, 4.5rem) clamp(2rem, 1rem + 3vw, 3.5rem);
+    align-items: center;
+  }
+  @media (min-width: 1000px) {
+    .head:not(.landscape) {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      gap: 4rem;
+    }
+  }
+  .title {
+    margin-top: 1.4rem;
+    font-size: var(--fs-h1);
+    line-height: 1.02;
+    letter-spacing: -0.028em;
+  }
+  .dek {
+    margin-top: 1.25rem;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 360;
+    font-size: clamp(1.2rem, 1.05rem + 0.7vw, 1.55rem);
+    line-height: 1.4;
+    color: var(--text-soft);
+    max-width: 40rem;
+  }
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-top: 2rem;
+  }
+  .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    flex: none;
+  }
+  .avatar :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .by {
+    display: grid;
+    gap: 0.15rem;
+  }
+  .by a {
+    font-weight: 650;
+    text-decoration: none;
+  }
+  .by a:hover {
+    text-decoration: underline;
+  }
+  .head-media .frame {
+    aspect-ratio: 4 / 5;
+    box-shadow: var(--frame-shadow);
+  }
+  .landscape .head-media .frame {
+    aspect-ratio: 16 / 9;
+  }
+  .head-media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .head-media figcaption {
+    margin-top: 0.7rem;
+    font-size: var(--fs-small);
+    color: var(--text-mute);
+  }
+  @media (max-width: 999px) {
+    .head-media .frame {
+      aspect-ratio: 4 / 4.4;
+    }
+  }
+
+  /* body layout */
+  .layout {
+    display: grid;
+    gap: 2.5rem;
+    padding-bottom: clamp(3rem, 2rem + 4vw, 6rem);
+  }
+  .main,
+  .summary-wrap {
+    min-width: 0;
+    max-width: var(--max-text);
+  }
+  .summary-wrap:empty {
+    display: none;
+  }
+  @media (min-width: 1100px) {
+    .layout {
+      grid-template-columns: minmax(0, 1fr) 18rem;
+      grid-template-areas: 'summary rail' 'main rail';
+      column-gap: 5rem;
+      row-gap: 0;
+      padding-left: max(var(--gutter), calc((100% - var(--max-text) - 18rem - 5rem) / 2));
+    }
+    .summary-wrap {
+      grid-area: summary;
+    }
+    .main {
+      grid-area: main;
+    }
+    .rail {
+      grid-area: rail;
+    }
+  }
+  @media (max-width: 1099px) {
+    .layout {
+      max-width: calc(var(--max-text) + 2 * var(--gutter));
+      gap: 0;
+    }
+    .rail {
+      margin-bottom: 2.5rem;
+    }
+  }
+  .rail-inner {
+    position: sticky;
+    top: calc(var(--header-h) + 1.5rem);
+    display: grid;
+    gap: 2rem;
+  }
+  .rail-title,
+  .summary-title {
+    font-family: var(--font-text);
+    font-size: var(--fs-meta);
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-mute);
+    margin-bottom: 0.8rem;
+  }
+  .facts dl {
+    border-top: 1px solid var(--rule-strong);
+  }
+  .facts dl > div {
+    display: grid;
+    gap: 0.1rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .facts dt {
+    font-size: 0.8rem;
+    color: var(--text-mute);
+  }
+  .facts dd {
+    font-weight: 600;
+    font-size: 0.98rem;
+  }
+  @media (max-width: 1099px) {
+    .facts dl {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 1.25rem;
+    }
+    .toc {
+      display: none;
+    }
+  }
+  .toc ol {
+    display: grid;
+    gap: 0.1rem;
+    counter-reset: toc;
+  }
+  .toc a {
+    display: grid;
+    grid-template-columns: 1.6rem 1fr;
+    padding: 0.35rem 0;
+    font-size: 0.92rem;
+    color: var(--text-soft);
+    text-decoration: none;
+    line-height: 1.35;
+  }
+  .toc li {
+    counter-increment: toc;
+  }
+  .toc a::before {
+    content: counter(toc, decimal-leading-zero);
+    font-size: 0.75rem;
+    font-weight: 650;
+    color: var(--text-mute);
+    padding-top: 0.12rem;
+  }
+  .toc a:hover {
+    color: var(--text);
+  }
+  .mini-video {
+    display: grid;
+    gap: 0.5rem;
+    text-decoration: none;
+  }
+  .mini-video :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .mv-k {
+    margin-top: 0.3rem;
+    font-size: var(--fs-meta);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--sun-ink);
+  }
+  .mv-t {
+    font-family: var(--font-display);
+    font-size: 1.08rem;
+    line-height: 1.25;
+  }
+  .mini-video:hover .mv-t {
+    text-decoration: underline;
+    text-decoration-color: var(--sun);
+  }
+  @media (max-width: 1099px) {
+    .mini-video {
+      grid-template-columns: 8rem 1fr;
+      grid-template-rows: auto auto;
+      column-gap: 1rem;
+      align-items: center;
+    }
+    .mv-thumb {
+      grid-row: span 2;
+    }
+  }
+
+  .summary {
+    margin-bottom: 2.5rem;
+    padding: 1.4rem 1.5rem 1.5rem;
+    border-radius: var(--radius);
+    background: var(--white);
+    border: 1px solid var(--rule);
+  }
+  .summary ul {
+    display: grid;
+    gap: 0.65rem;
+  }
+  .summary li {
+    position: relative;
+    padding-left: 1.3rem;
+    line-height: 1.5;
+  }
+  .summary li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.62em;
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--sun);
+  }
+
+  .block-title {
+    font-size: var(--fs-h3);
+    margin-bottom: 1rem;
+  }
+  .faq {
+    margin-top: 3.5rem;
+  }
+  details {
+    border-top: 1px solid var(--rule);
+  }
+  details:last-of-type {
+    border-bottom: 1px solid var(--rule);
+  }
+  summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 0;
+    min-height: 52px;
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  .plus {
+    position: relative;
+    width: 14px;
+    height: 14px;
+    flex: none;
+  }
+  .plus::before,
+  .plus::after {
+    content: '';
+    position: absolute;
+    inset: 50% 0 auto 0;
+    height: 1.5px;
+    background: currentColor;
+    transition: transform var(--t-med) var(--ease-out);
+  }
+  .plus::after {
+    transform: rotate(90deg);
+  }
+  details[open] .plus::after {
+    transform: rotate(0);
+  }
+  details p {
+    padding-bottom: 1.1rem;
+    color: var(--text-soft);
+    max-width: 38rem;
+  }
+  .sources {
+    margin-top: 3rem;
+    font-size: 0.95rem;
+  }
+  .sources ol {
+    padding-left: 1.2rem;
+    display: grid;
+    gap: 0.4rem;
+  }
+  .note {
+    margin-top: 3rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+    font-size: var(--fs-small);
+    color: var(--text-mute);
+  }
+  .end-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  /* video block */
+  .video-block {
+    padding-block: clamp(3.5rem, 2rem + 5vw, 7rem);
+  }
+  .vb-grid {
+    display: grid;
+    gap: 2rem;
+    align-items: center;
+  }
+  @media (min-width: 1000px) {
+    .vb-grid {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      gap: 4rem;
+    }
+  }
+  .vb-title {
+    margin-top: 1rem;
+    font-size: var(--fs-h2);
+  }
+  .vb-title a {
+    text-decoration: none;
+  }
+  .vb-title a:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--sun);
+  }
+  .vb-ctx {
+    margin-top: 1rem;
+    color: var(--on-night-soft);
+    font-size: var(--fs-lead);
+  }
+
+  /* author */
+  .author {
+    display: grid;
+    gap: 2.5rem;
+    padding-block: clamp(3rem, 2rem + 4vw, 5.5rem);
+  }
+  @media (min-width: 900px) {
+    .author {
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: 4rem;
+    }
+  }
+  .author-card {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+  .author-img {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+  }
+  .author-img :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .author-name {
+    margin-top: 0.6rem;
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    line-height: 1.1;
+  }
+  .author-bio {
+    margin: 0.7rem 0 1.2rem;
+    color: var(--text-soft);
+    max-width: 34rem;
+  }
+  .proj ul {
+    margin-top: 1rem;
+    border-top: 1px solid var(--rule);
+  }
+  .proj li {
+    border-bottom: 1px solid var(--rule);
+  }
+  .proj a {
+    display: grid;
+    padding: 0.8rem 0;
+    text-decoration: none;
+  }
+  .p-name {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+  }
+  .p-cat {
+    font-size: 0.9rem;
+    color: var(--text-mute);
+  }
+  .proj a:hover .p-name {
+    text-decoration: underline;
+    text-decoration-color: var(--sun);
+  }
+  .related-title {
+    font-size: var(--fs-h2);
+    margin-bottom: 2.5rem;
+  }
+  .related-grid {
+    display: grid;
+    gap: 2.5rem 1.75rem;
+  }
+  @media (min-width: 700px) {
+    .related-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1100px) {
+    .related-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

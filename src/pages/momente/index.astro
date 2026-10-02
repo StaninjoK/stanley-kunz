@@ -1,0 +1,73 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import MomentCard from '../../components/cards/MomentCard.astro';
+import TopicFilter from '../../components/TopicFilter.astro';
+import { getMoments } from '../../lib/content';
+import { breadcrumbSchema } from '../../lib/schema';
+import type { TopicId } from '../../config/taxonomy';
+
+const moments = await getMoments();
+const rendered = await Promise.all(moments.map(async (m) => ({ m, Content: (await render(m)).Content })));
+const topics = [...new Set(moments.flatMap((m) => m.data.topics))] as TopicId[];
+---
+
+<BaseLayout
+  title="Momente"
+  description="Kleine Momente aus meinem Alltag in Uruguay: Tiere, Wetter, Campo, Unterwegs. Nicht jeder Clip braucht einen Artikel."
+  path="/momente/"
+  ogImage="/og/pages/momente.jpg"
+  schema={[breadcrumbSchema([{ name: 'Start', path: '/' }, { name: 'Momente', path: '/momente/' }])]}
+>
+  <PageHeader
+    eyebrow="Momente"
+    title="Was <em>zwischendurch</em> passiert."
+    intro="Ein Kalb, das zum ersten Mal von allein kommt. Ein Strand, 30 Meter unter der Straße. Nicht jeder Clip braucht einen Artikel – manche sind einfach ein Moment."
+  />
+  <div class="container wrap">
+    <TopicFilter topics={topics} target="#moment-list" empty="#moment-empty" />
+    <ul role="list" id="moment-list" class="masonry">
+      {
+        rendered.map(({ m, Content }, i) => (
+          <li data-reveal style={`--reveal-delay: ${i % 3}`} data-topics={m.data.topics.join(' ')}>
+            <MomentCard moment={m} variant="full" sizes="(min-width: 1100px) 400px, (min-width: 640px) 45vw, 92vw">
+              <Content />
+            </MomentCard>
+          </li>
+        ))
+      }
+    </ul>
+    <p id="moment-empty" class="empty" hidden>Zu diesem Thema gibt es noch keinen Moment.</p>
+  </div>
+</BaseLayout>
+
+<style>
+  .wrap {
+    padding-bottom: var(--section);
+  }
+  .masonry {
+    columns: 1;
+    column-gap: 1.5rem;
+  }
+  @media (min-width: 640px) {
+    .masonry {
+      columns: 2;
+    }
+  }
+  @media (min-width: 1100px) {
+    .masonry {
+      columns: 3;
+    }
+  }
+  .masonry > li {
+    break-inside: avoid;
+    margin-bottom: 2.5rem;
+  }
+  .masonry > li[hidden] {
+    display: none;
+  }
+  .empty {
+    color: var(--text-mute);
+  }
+</style>

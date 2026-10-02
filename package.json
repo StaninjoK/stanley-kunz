@@ -1,0 +1,61 @@
+{
+  "name": "stanley-kunz",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview --port 4321",
+    "check": "npm run typecheck && npm run lint && npm run test:unit && npm run privacy",
+    "typecheck": "astro check",
+    "lint": "eslint .",
+    "format": "prettier --write \"src/**/*.{astro,ts,css}\" \"scripts/**/*.mjs\"",
+    "test": "npm run test:unit && npm run test:site",
+    "test:unit": "node --test \"tests/unit/*.test.mjs\"",
+    "test:site": "node --test tests/site.test.mjs",
+    "test:e2e": "playwright test",
+    "privacy": "node scripts/content/privacy-scan.mjs",
+    "privacy:dist": "node scripts/content/privacy-scan.mjs --dist",
+    "sync:youtube": "node scripts/sync-youtube.mjs",
+    "desk": "node scripts/desk.mjs",
+    "content:ingest": "node scripts/content/ingest-video.mjs",
+    "content:verify": "node scripts/content/verify-claims.mjs",
+    "content:links": "node scripts/content/link-suggest.mjs",
+    "content:promote": "node scripts/content/promote.mjs",
+    "content:social": "node scripts/content/social.mjs",
+    "verify": "npm run check && npm run build && npm run test:site && npm run privacy:dist"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^8.0.2",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.4",
+    "@fontsource-variable/fraunces": "^5.3.0",
+    "@fontsource-variable/inter-tight": "^5.3.0",
+    "@fontsource/fraunces": "^5.3.0",
+    "@fontsource/inter-tight": "^5.3.0",
+    "@resvg/resvg-js": "^2.6.2",
+    "astro": "^7.3.5",
+    "satori": "^0.34.0",
+    "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@axe-core/playwright": "^4.13.0",
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.63.0",
+    "eslint": "^10.11.0",
+    "eslint-plugin-astro": "^1.7.0",
+    "fast-xml-parser": "^5.11.2",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.9",
+    "prettier-plugin-astro": "^1.1.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.71.0",
+    "yaml": "^2.9.1"
+  },
+  "description": "Stanley Kunz – persönlicher Media-Hub (stanley.kunzglobal.com)"
+}

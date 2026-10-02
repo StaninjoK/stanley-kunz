@@ -1,0 +1,235 @@
+---
+import { getEntry, render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Media from '../components/Media.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { SITE, visibleSocial } from '../config/site';
+import { BRAND_ICON, ICON } from '../lib/icons';
+import { breadcrumbSchema, PERSON_ID, abs } from '../lib/schema';
+import { formatDate } from '../lib/format';
+import portrait from '../assets/media/stanley-campo-lachen.jpg';
+import wool from '../assets/media/stanley-merinowolle.jpg';
+import drone from '../assets/media/stanley-mit-drohne.jpg';
+import '../styles/prose.css';
+
+const page = (await getEntry('pages', 'ueber-mich'))!;
+const { Content } = await render(page);
+const social = visibleSocial();
+const schema = [
+  breadcrumbSchema([
+    { name: 'Start', path: '/' },
+    { name: 'Über mich', path: '/ueber-mich/' },
+  ]),
+  { '@type': 'ProfilePage', '@id': `${abs('/ueber-mich/')}#page`, url: abs('/ueber-mich/'), name: 'Über Stanley Kunz', mainEntity: { '@id': PERSON_ID }, dateModified: page.data.updatedDate.toISOString(), inLanguage: 'de' },
+];
+const FACTS = [
+  { k: 'Herkunft', v: 'Deutschland' },
+  { k: 'In Uruguay seit', v: '2022, mit 19' },
+  { k: 'Gelernt', v: 'Anlagenmechaniker' },
+  { k: 'Sprachen', v: 'Deutsch, Spanisch' },
+  { k: 'Heute', v: 'Gründer von Kunz Global' },
+];
+---
+
+<BaseLayout title="Über mich" description={page.data.description} path="/ueber-mich/" ogImage="/og/pages/ueber-mich.jpg" ogType="profile" schema={schema}>
+  <section class="hero container">
+    <div class="hero-text">
+      <Breadcrumbs items={[{ name: 'Start', path: '/' }, { name: 'Über mich' }]} />
+      <p class="eyebrow">Über mich</p>
+      <h1 class="h1">Ich bin <em>Stanley Kunz.</em></h1>
+      <p class="lead">
+        Ich komme aus Deutschland und bin 2022, mit 19, nach Uruguay ausgewandert. Heute lebe ich hier mit meiner Familie auf dem Land und baue
+        verschiedene Unternehmen auf – in der Landwirtschaft, mit Agrardrohnen, mit Software und im Handel zwischen Uruguay und Europa.
+      </p>
+      <dl class="facts">
+        {
+          FACTS.map((f) => (
+            <div>
+              <dt>{f.k}</dt>
+              <dd>{f.v}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+    <div class="hero-media">
+      <div class="frame f1"><Media src={portrait} alt="Stanley Kunz lacht in die Kamera, hinter ihm eine Weide mit Bäumen in Uruguay." sizes="(min-width: 1000px) 30vw, 70vw" position="50% 25%" priority /></div>
+      <div class="frame f2"><Media src={wool} alt="Stanley Kunz hält gekämmte Merinowolle vor einer Palme." sizes="(min-width: 1000px) 16vw, 40vw" position="50% 30%" /></div>
+      <div class="frame f3"><Media src={drone} alt="Stanley Kunz steht neben seiner großen Agrardrohne auf einem Feld." sizes="(min-width: 1000px) 16vw, 40vw" position="50% 60%" /></div>
+    </div>
+  </section>
+
+  <div class="container-text body">
+    <div class="prose">
+      <Content />
+    </div>
+    <p class="updated">Zuletzt aktualisiert: {formatDate(page.data.updatedDate)}. Diese Seite wächst mit.</p>
+  </div>
+
+  <section class="section-tight surface-night grain contact" aria-labelledby="contact-title">
+    <div class="container c-grid">
+      <div>
+        <p class="eyebrow">Kontakt</p>
+        <h2 id="contact-title" class="c-title">Schreib mir.</h2>
+        <p class="c-text">Für Anfragen, Kooperationen oder Presse am besten per E-Mail.</p>
+        <a class="btn btn-sun" href={`mailto:${SITE.author.email}`}><span set:html={ICON.mail} /> {SITE.author.email}</a>
+      </div>
+      <ul role="list" class="nets">
+        {
+          social.map((s) => (
+            <li>
+              <a href={s.url} rel="noopener me" target="_blank" data-track={`outbound-${s.id}-about`}>
+                <span set:html={BRAND_ICON[s.id]} />
+                <span>{s.label}</span>
+                <span class="h">{s.handle}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    display: grid;
+    gap: 3rem;
+    padding-block: clamp(2rem, 1rem + 4vw, 5rem);
+    align-items: center;
+  }
+  @media (min-width: 1000px) {
+    .hero {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: 5rem;
+    }
+  }
+  .eyebrow {
+    margin-top: 1.5rem;
+  }
+  .h1 {
+    margin-top: 1rem;
+    font-size: var(--fs-hero);
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+  }
+  .lead {
+    margin-top: 1.5rem;
+    max-width: 38rem;
+  }
+  .facts {
+    margin-top: 2.2rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-top: 1px solid var(--rule-strong);
+    max-width: 38rem;
+  }
+  @media (min-width: 640px) {
+    .facts {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .facts > div {
+    padding: 0.9rem 1rem 0.9rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .facts dt {
+    font-size: 0.78rem;
+    color: var(--text-mute);
+  }
+  .facts dd {
+    font-weight: 600;
+  }
+  .hero-media {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: 0.9rem;
+    align-items: center;
+  }
+  .hero-media .frame {
+    box-shadow: var(--frame-shadow);
+  }
+  .hero-media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .f1 {
+    grid-row: span 2;
+    aspect-ratio: 9 / 15;
+  }
+  .f2,
+  .f3 {
+    aspect-ratio: 4 / 5;
+  }
+  .f2 {
+    align-self: end;
+  }
+  .f3 {
+    align-self: start;
+  }
+  .body {
+    padding-bottom: var(--section);
+  }
+  .body .prose > :global(h2:first-child) {
+    margin-top: 0.5em;
+  }
+  .updated {
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--rule);
+    font-size: var(--fs-small);
+    color: var(--text-mute);
+  }
+  .c-grid {
+    display: grid;
+    gap: 2.5rem;
+    align-items: center;
+  }
+  @media (min-width: 900px) {
+    .c-grid {
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 5rem;
+    }
+  }
+  .c-title {
+    margin-top: 1rem;
+    font-size: var(--fs-h1);
+  }
+  .c-text {
+    margin: 1rem 0 1.75rem;
+    color: var(--on-night-soft);
+    max-width: 32rem;
+  }
+  .btn :global(svg) {
+    width: 1.15em;
+    height: 1.15em;
+  }
+  .nets {
+    border-top: 1px solid var(--rule-night);
+  }
+  .nets li {
+    border-bottom: 1px solid var(--rule-night);
+  }
+  .nets a {
+    display: grid;
+    grid-template-columns: 1.5rem 1fr auto;
+    align-items: center;
+    gap: 0.9rem;
+    min-height: 54px;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .nets :global(svg) {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+  .nets .h {
+    font-weight: 400;
+    color: var(--on-night-mute);
+    font-size: 0.9rem;
+  }
+  .nets a:hover span:nth-child(2) {
+    color: var(--sun);
+  }
+</style>

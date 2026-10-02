@@ -1,0 +1,135 @@
+---
+import { render } from 'astro:content';
+import MomentCard from '../cards/MomentCard.astro';
+import { ICON } from '../../lib/icons';
+import type { Moment } from '../../lib/content';
+
+interface Props {
+  moments: Moment[];
+}
+const { moments } = Astro.props;
+const rendered = await Promise.all(moments.map(async (m) => ({ m, Content: (await render(m)).Content })));
+---
+
+<section class="section moments surface-night grain" aria-labelledby="moments-title" data-rail>
+  <div class="container">
+    <header class="section-head">
+      <div>
+        <p class="eyebrow">Momente</p>
+        <h2 id="moments-title">Was <em>zwischendurch</em> passiert.</h2>
+      </div>
+      <div class="head-side">
+        <p>Nicht jeder Clip braucht einen Artikel. Kleine Beobachtungen vom Campo, aus dem Alltag und von unterwegs – bei jedem Besuch in anderer Reihenfolge.</p>
+        <div class="controls">
+          <button type="button" class="ctrl" data-rail-prev aria-label="Zurück"><span set:html={ICON.arrow} /></button>
+          <button type="button" class="ctrl" data-rail-next aria-label="Weiter"><span set:html={ICON.arrow} /></button>
+        </div>
+      </div>
+    </header>
+  </div>
+  <div class="track" data-rail-track tabindex="0" aria-label="Momente, horizontal scrollbar">
+    <ul role="list" class="list" data-shuffle data-shuffle-keep="1">
+      {
+        rendered.map(({ m, Content }) => (
+          <li class="item">
+            <MomentCard moment={m}>
+              <Content />
+            </MomentCard>
+          </li>
+        ))
+      }
+      <li class="item end" data-fixed="true">
+        <a href="/momente/" class="end-card">
+          <span class="end-t">Alle Momente</span>
+          <span set:html={ICON.arrow} />
+        </a>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<style>
+  .head-side {
+    display: grid;
+    gap: 1.25rem;
+  }
+  .controls {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .ctrl {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1px solid var(--rule-night-strong);
+    background: transparent;
+    color: var(--on-night);
+    transition: background-color var(--t-fast), color var(--t-fast), opacity var(--t-fast);
+  }
+  .ctrl:hover:not(:disabled) {
+    background: var(--on-night);
+    color: var(--night);
+  }
+  .ctrl:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+  .ctrl[data-rail-prev] :global(svg) {
+    transform: rotate(180deg);
+  }
+  .ctrl :global(svg) {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+  .track {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    scrollbar-width: none;
+    padding-bottom: 0.5rem;
+  }
+  .track::-webkit-scrollbar {
+    display: none;
+  }
+  .track:focus-visible {
+    outline-offset: -3px;
+  }
+  .list {
+    display: flex;
+    gap: clamp(0.75rem, 0.5rem + 1vw, 1.25rem);
+    width: max-content;
+    padding-inline: max(var(--gutter), calc((100vw - var(--max)) / 2 + var(--gutter)));
+  }
+  .item {
+    width: clamp(15rem, 58vw, 19rem);
+    scroll-snap-align: start;
+  }
+  .end-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    aspect-ratio: 9 / 16;
+    padding: 1.4rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--rule-night-strong);
+    text-decoration: none;
+    color: var(--on-night);
+    transition: background-color var(--t-fast), color var(--t-fast);
+  }
+  .end-card:hover {
+    background: var(--sun);
+    color: var(--night);
+  }
+  .end-t {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    line-height: 1.05;
+  }
+  .end-card :global(svg) {
+    width: 1.6rem;
+    height: 1.6rem;
+  }
+</style>
