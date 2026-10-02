@@ -91,8 +91,9 @@ export const ANALYTICS: {
   provider: 'goatcounter' | null;
   goatcounterCode: string | null;
 } = {
-  provider: null,
-  goatcounterCode: null,
+  // Site https://stanleykunz.goatcounter.com (created 2026-10-02). count.js is self-hosted in public/js/ (ISC license).
+  provider: 'goatcounter',
+  goatcounterCode: 'stanleykunz',
 };
 
 /** Search engine ownership verification (meta tags). Values come from Google Search Console / Bing Webmaster Tools. */
