@@ -2,7 +2,9 @@
 slug: mein-erstes-video-aus-uruguay
 title: "Mein erstes Video aus Uruguay – so sieht mein Alltag auf dem Campo aus"
 description: "Ein ganzer Tag auf meinem Campo in Uruguay: fünf Kälber, zwei Schäferhündinnen, Gasflaschen im Dorf, ein Strand unter Klippen – und die Bude, in der ich am Anfang gewohnt habe."
-status: upcoming
+publishDate: 2026-10-02
+youtubeId: vYCyBTmEFy0
+status: published
 announce: true
 format: long
 duration: PT11M20S
