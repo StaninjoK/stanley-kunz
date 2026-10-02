@@ -46,7 +46,8 @@ export type SocialId =
   | 'x'
   | 'threads'
   | 'bluesky'
-  | 'pinterest';
+  | 'pinterest'
+  | 'snapchat';
 
 export interface SocialLink {
   id: SocialId;
@@ -71,10 +72,11 @@ export const SOCIAL: SocialLink[] = [
   { id: 'facebook', label: 'Facebook', handle: 'Stanley Kunz', url: 'https://www.facebook.com/1318775721325547', verified: true },
   { id: 'bluesky', label: 'Bluesky', handle: '@stanleykunz.bsky.social', url: 'https://bsky.app/profile/stanleykunz.bsky.social', verified: true },
   { id: 'pinterest', label: 'Pinterest', handle: '@stanleykunz', url: 'https://www.pinterest.com/stanleykunz/', verified: true },
-  // Preferred handle per briefing, not yet verified against the live account. Set `verified: true` once checked.
-  { id: 'tiktok', label: 'TikTok', handle: '@stanleykunz', url: 'https://www.tiktok.com/@stanleykunz', verified: false },
-  { id: 'x', label: 'X', handle: '@stanleykunz', url: 'https://x.com/stanleykunz', verified: false },
-  { id: 'linkedin', label: 'LinkedIn', handle: 'Stanley Kunz', url: 'https://www.linkedin.com/in/stanleykunz/', verified: false },
+  // Verified in Stanley's logged-in browser sessions (2026-10-02).
+  { id: 'tiktok', label: 'TikTok', handle: '@stanleykunz', url: 'https://www.tiktok.com/@stanleykunz', verified: true },
+  { id: 'x', label: 'X', handle: '@stanley_kunz', url: 'https://x.com/stanley_kunz', verified: true },
+  { id: 'snapchat', label: 'Snapchat', handle: '@stanleykunz', url: 'https://www.snapchat.com/@stanleykunz', verified: true },
+  { id: 'linkedin', label: 'LinkedIn', handle: 'Stanley Kunz', url: 'https://www.linkedin.com/in/stanley-kunz-2aa106379/', verified: true },
 ];
 
 export const visibleSocial = (): SocialLink[] => SOCIAL.filter((s) => s.verified);
@@ -95,7 +97,8 @@ export const ANALYTICS: {
 
 /** Search engine ownership verification (meta tags). Values come from Google Search Console / Bing Webmaster Tools. */
 export const VERIFICATION: { google: string | null; bing: string | null } = {
-  google: null,
+  // Google Search Console, URL-prefix property https://stanley.kunzglobal.com/ (added 2026-10-02).
+  google: 'sdudoI3O99mf4jpST_WW_Z0VvhWzw347j6XXjx3Zku0',
   bing: null,
 };
 
