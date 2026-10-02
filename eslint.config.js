@@ -4,7 +4,7 @@ import astro from 'eslint-plugin-astro';
 import globals from 'globals';
 
 export default [
-  { ignores: ['dist/', '.astro/', 'node_modules/', 'content-inbox/', 'desk/', '.scratch/', 'test-results/', 'playwright-report/'] },
+  { ignores: ['dist/', '.astro/', 'node_modules/', 'content-inbox/', 'desk/', '.scratch/', 'test-results/', 'playwright-report/', 'public/js/count.js'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   ...astro.configs.recommended,
