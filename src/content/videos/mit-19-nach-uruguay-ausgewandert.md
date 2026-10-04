@@ -2,7 +2,9 @@
 slug: mit-19-nach-uruguay-ausgewandert
 title: "Mit 19 nach Uruguay ausgewandert – meine ehrliche Geschichte"
 description: "Mit 19 habe ich meinen Job in Deutschland gekündigt und bin nach Uruguay gegangen. Ohne Sprache, mit wenig Geld – und mit einer ziemlich falschen Vorstellung davon, was Risiko bedeutet."
-status: upcoming
+publishDate: 2026-10-04
+youtubeId: TUgVyKUwmZE
+status: published
 announce: true
 format: long
 duration: PT9M3S
