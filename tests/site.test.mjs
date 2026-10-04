@@ -147,7 +147,7 @@ test('custom domain and static hosting files', () => {
   assert.equal(fs.readFileSync(path.join(DIST, 'CNAME'), 'utf8').trim(), 'stanley.kunzglobal.com');
   assert.ok(fs.existsSync(path.join(DIST, '.nojekyll')));
   assert.ok(fs.existsSync(path.join(DIST, '404.html')));
-  assert.ok(fs.existsSync(path.join(DIST, 'favicon.svg')));
+  for (const icon of ['favicon.ico', 'favicon-96.png', 'favicon-32.png', 'apple-touch-icon.png']) assert.ok(fs.existsSync(path.join(DIST, icon)), icon);
 });
 
 test('page weight stays reasonable', () => {
