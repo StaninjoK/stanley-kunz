@@ -118,9 +118,19 @@ test('no drafts, inbox content or private data in the build', () => {
     assert.ok(!text.includes('content-inbox'), `${rel(file)}: Verweis auf content-inbox`);
     for (const slug of draftSlugs) assert.ok(!text.includes(slug), `${rel(file)}: Entwurf ${slug} ist im Build`);
   }
+  // Videos that are not public on YouTube yet and not announced must not get a page.
+  const videoDir = path.resolve('src/content/videos');
+  const unannounced = fs
+    .readdirSync(videoDir)
+    .filter((f) => /\.mdx?$/.test(f))
+    .filter((f) => {
+      const fm = fs.readFileSync(path.join(videoDir, f), 'utf8');
+      return /^status:\s*upcoming\s*$/m.test(fm) && /^announce:\s*false\s*$/m.test(fm);
+    })
+    .map((f) => f.replace(/\.mdx?$/, ''));
   for (const dir of fs.readdirSync(path.join(DIST, 'videos'))) {
     if (!fs.statSync(path.join(DIST, 'videos', dir)).isDirectory()) continue;
-    assert.notEqual(dir, '100000-dollar-kredit-drohnen-business', 'nicht angekündigtes Video darf nicht vor YouTube erscheinen');
+    assert.ok(!unannounced.includes(dir), `nicht angekündigtes Video ${dir} darf nicht vor YouTube erscheinen`);
   }
 });
 
