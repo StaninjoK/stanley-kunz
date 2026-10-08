@@ -60,8 +60,15 @@ export function parseFeed(xml) {
 /** Best curated entry for a feed video, or null. Exported for tests. */
 export function matchEntry(feedVideo, entries) {
   let best = null;
+  const title = feedVideo.title.toLowerCase();
   for (const entry of entries) {
     if (entry.data.youtubeId) continue;
+    // Announced videos can carry keywords because the final YouTube title is often decided at upload time.
+    const keywords = Array.isArray(entry.data.match) ? entry.data.match : [];
+    if (keywords.some((k) => title.includes(String(k).toLowerCase()))) {
+      if (!best || best.score < 1) best = { entry, score: 1, byKeyword: true };
+      continue;
+    }
     const score = Math.max(jaccard(feedVideo.title, entry.data.title), entry.data.title.toLowerCase() === feedVideo.title.toLowerCase() ? 1 : 0);
     if (score >= 0.5 && (!best || score > best.score)) best = { entry, score };
   }
@@ -129,7 +136,10 @@ async function main() {
     const match = matchEntry(v, entries);
     if (match) {
       changes.push(`verknüpft: "${v.title}" → ${path.basename(match.entry.file)} (${match.score.toFixed(2)})`);
-      if (!dry) setFrontmatterKeys(match.entry.file, { youtubeId: v.id, status: 'published', publishDate: v.published.slice(0, 10) }, 'description');
+      const keys = { youtubeId: v.id, status: 'published', publishDate: v.published.slice(0, 10) };
+      // Matched by keyword: the entry still has a working title, so take over the real one from YouTube.
+      if (match.byKeyword && v.title.length >= 5 && v.title.length <= 120) keys.title = v.title;
+      if (!dry) setFrontmatterKeys(match.entry.file, keys, 'description');
       match.entry.data.youtubeId = v.id;
       known.add(v.id);
       continue;

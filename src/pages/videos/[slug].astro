@@ -59,7 +59,7 @@ const duration = durationLabel(d.duration);
       <p class="meta">
         {live && d.publishDate ? <time datetime={d.publishDate.toISOString()}>{formatDate(d.publishDate)}</time> : <span>Demnächst auf YouTube</span>}
         {duration && <span>{duration} Min.</span>}
-        <span>Deutsch · Untertitel DE/ES/EN/PT</span>
+        <span>Deutsch{d.subtitles.length > 0 && ` · Untertitel ${d.subtitles.map((l) => l.toUpperCase()).join('/')}`}</span>
       </p>
     </header>
 

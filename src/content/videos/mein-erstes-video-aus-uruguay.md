@@ -7,6 +7,7 @@ youtubeId: vYCyBTmEFy0
 status: published
 announce: true
 format: long
+subtitles: [de, es, en, pt]
 duration: PT11M20S
 thumbnail: ../../assets/videos/mein-erstes-video-aus-uruguay.jpg
 thumbnailAlt: "Stanley Kunz lächelt auf einer Weide in Uruguay, dahinter ein Kalb – Thumbnail „Mein erstes Video“."

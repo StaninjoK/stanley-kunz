@@ -7,6 +7,7 @@ youtubeId: TUgVyKUwmZE
 status: published
 announce: true
 format: long
+subtitles: [de, es, en, pt]
 duration: PT9M3S
 thumbnail: ../../assets/videos/mit-19-nach-uruguay-ausgewandert.jpg
 thumbnailAlt: "Stanley Kunz auf seinem Grundstück in Uruguay, daneben der Schriftzug „Zu hart für dich“."

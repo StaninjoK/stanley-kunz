@@ -59,3 +59,11 @@ test('sync ignores old channel uploads (before the cut-off date)', () => {
   ];
   assert.deepEqual(syncable(videos, '2026-09-01').map((v) => v.id), ['new']);
 });
+
+test('announced videos are matched by keyword when the final title differs', () => {
+  const entries = [{ data: { title: 'Ein Tag in Montevideo', match: ['montevideo', 'großmarkt'] } }];
+  const hit = matchEntry({ title: 'Großmarkt in Uruguay – lohnt sich das? 🇺🇾' }, entries);
+  assert.ok(hit && hit.byKeyword);
+  assert.equal(matchEntry({ title: 'Meine Kühe im Winter' }, entries), null);
+  assert.equal(matchEntry({ title: 'Montevideo' }, [{ data: { title: 'X', match: ['montevideo'], youtubeId: 'abcdefghijk' } }]), null);
+});

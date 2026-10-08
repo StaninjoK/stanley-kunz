@@ -8,6 +8,7 @@ status: published
 # Erst sichtbar, wenn das Video auf YouTube öffentlich ist (setzt scripts/sync-youtube.mjs automatisch).
 announce: false
 format: long
+subtitles: [de, es, en, pt]
 duration: PT13M35S
 thumbnail: ../../assets/videos/100000-dollar-kredit-drohnen-business.jpg
 thumbnailAlt: "Stanley Kunz hält sich die Hand vor den Mund, daneben der Schriftzug „100.000 $ Kredit“."

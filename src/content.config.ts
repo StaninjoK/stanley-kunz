@@ -100,6 +100,13 @@ const videos = defineCollection({
       status: z.enum(['published', 'upcoming']).default('upcoming'),
       /** Upcoming videos are only teased on the site when this is true. */
       announce: z.boolean().default(false),
+      /**
+       * Keywords for announced videos whose final YouTube title is not known yet. The YouTube sync links the
+       * first public upload whose title contains one of them (case-insensitive) and takes over its real title.
+       */
+      match: z.array(z.string().min(3)).optional(),
+      /** Subtitle languages available on YouTube. Only shown when set. */
+      subtitles: z.array(z.enum(['de', 'es', 'en', 'pt'])).default([]),
       format: z.enum(['long', 'short']).default('long'),
       publishDate: z.coerce.date().optional(),
       /** ISO 8601 duration, e.g. PT11M20S */
