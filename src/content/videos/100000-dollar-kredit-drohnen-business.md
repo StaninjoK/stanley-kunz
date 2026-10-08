@@ -2,7 +2,9 @@
 slug: 100000-dollar-kredit-drohnen-business
 title: "100.000 $ Kredit mit 20 % Zinsen – so habe ich mein Drohnen-Business gestartet"
 description: "Über 100.000 Dollar in ein Drohnen-Business, das Geld dafür geliehen, ein Monat ohne Auftrag, ein Abdrift-Schaden beim ersten Job und zwei Crashs. Die ehrliche Geschichte."
-status: upcoming
+publishDate: 2026-10-08
+youtubeId: WMAowzLYgn0
+status: published
 # Erst sichtbar, wenn das Video auf YouTube öffentlich ist (setzt scripts/sync-youtube.mjs automatisch).
 announce: false
 format: long
