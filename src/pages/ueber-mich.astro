@@ -7,7 +7,7 @@ import { SITE, visibleSocial } from '../config/site';
 import { BRAND_ICON, ICON } from '../lib/icons';
 import { breadcrumbSchema, PERSON_ID, abs } from '../lib/schema';
 import { formatDate } from '../lib/format';
-import portrait from '../assets/media/stanley-campo-lachen.jpg';
+import portrait from '../assets/media/stanley-portrait.jpg';
 import wool from '../assets/media/stanley-merinowolle.jpg';
 import drone from '../assets/media/stanley-mit-drohne.jpg';
 import '../styles/prose.css';
@@ -24,22 +24,22 @@ const schema = [
 ];
 const FACTS = [
   { k: 'Herkunft', v: 'Deutschland' },
-  { k: 'In Uruguay seit', v: '2022, mit 19' },
+  { k: 'In Uruguay seit', v: '2022' },
   { k: 'Gelernt', v: 'Anlagenmechaniker' },
-  { k: 'Sprachen', v: 'Deutsch, Spanisch' },
+  { k: 'Schwerpunkt', v: 'Rindfleisch & Merinowolle für Europa' },
   { k: 'Heute', v: 'Gründer von Kunz Global' },
 ];
 ---
 
-<BaseLayout title="Über mich" description={page.data.description} path="/ueber-mich/" ogImage="/og/pages/ueber-mich.jpg" ogType="profile" schema={schema}>
+<BaseLayout title="Über mich – Profil" description={page.data.description} path="/ueber-mich/" ogImage="/og/pages/ueber-mich.jpg" ogType="profile" schema={schema}>
   <section class="hero container">
     <div class="hero-text">
       <Breadcrumbs items={[{ name: 'Start', path: '/' }, { name: 'Über mich' }]} />
       <p class="eyebrow">Über mich</p>
       <h1 class="h1">Ich bin <em>Stanley Kunz.</em></h1>
       <p class="lead">
-        Ich komme aus Deutschland und bin 2022, mit 19, nach Uruguay ausgewandert. Heute lebe ich hier mit meiner Familie auf dem Land und baue
-        verschiedene Unternehmen auf – in der Landwirtschaft, mit Agrardrohnen, mit Software und im Handel zwischen Uruguay und Europa.
+        Ich komme aus Deutschland und lebe seit 2022 in Uruguay. Mein Schwerpunkt ist der Handel zwischen Uruguay und Europa:
+        Weiderindfleisch und Merinowolle für B2B-Käufer. Dazu kommen Software für Agrar-Dienstleister und Agrardrohnen-Dienstleistungen.
       </p>
       <dl class="facts">
         {
@@ -53,7 +53,7 @@ const FACTS = [
       </dl>
     </div>
     <div class="hero-media">
-      <div class="frame f1"><Media src={portrait} alt="Stanley Kunz lacht in die Kamera, hinter ihm eine Weide mit Bäumen in Uruguay." sizes="(min-width: 1000px) 30vw, 70vw" position="50% 25%" priority /></div>
+      <div class="frame f1"><Media src={portrait} alt="Porträt von Stanley Kunz im weißen Hemd." sizes="(min-width: 1000px) 30vw, 70vw" position="50% 25%" priority /></div>
       <div class="frame f2"><Media src={wool} alt="Stanley Kunz hält gekämmte Merinowolle vor einer Palme." sizes="(min-width: 1000px) 16vw, 40vw" position="50% 30%" /></div>
       <div class="frame f3"><Media src={drone} alt="Stanley Kunz steht neben seiner großen Agrardrohne auf einem Feld." sizes="(min-width: 1000px) 16vw, 40vw" position="50% 60%" /></div>
     </div>
@@ -63,15 +63,15 @@ const FACTS = [
     <div class="prose">
       <Content />
     </div>
-    <p class="updated">Zuletzt aktualisiert: {formatDate(page.data.updatedDate)}. Diese Seite wächst mit.</p>
+    <p class="updated">Zuletzt aktualisiert: {formatDate(page.data.updatedDate)}.</p>
   </div>
 
   <section class="section-tight surface-night grain contact" aria-labelledby="contact-title">
     <div class="container c-grid">
       <div>
         <p class="eyebrow">Kontakt</p>
-        <h2 id="contact-title" class="c-title">Schreib mir.</h2>
-        <p class="c-text">Für Anfragen, Kooperationen oder Presse am besten per E-Mail.</p>
+        <h2 id="contact-title" class="c-title">Kontakt.</h2>
+        <p class="c-text">Für geschäftliche Anfragen und Kooperationen erreichen Sie mich am besten per E-Mail.</p>
         <a class="btn btn-sun" href={`mailto:${SITE.author.email}`}><span set:html={ICON.mail} /> {SITE.author.email}</a>
       </div>
       <ul role="list" class="nets">

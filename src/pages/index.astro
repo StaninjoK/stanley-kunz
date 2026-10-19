@@ -1,90 +1,292 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import HomeHero from '../components/home/HomeHero.astro';
-import LatestVideo from '../components/home/LatestVideo.astro';
-import StoriesSection from '../components/home/StoriesSection.astro';
-import MomentsRail from '../components/home/MomentsRail.astro';
+import BusinessHero from '../components/home/BusinessHero.astro';
 import ProjectsList from '../components/home/ProjectsList.astro';
-import JourneyTeaser from '../components/home/JourneyTeaser.astro';
-import FollowSection from '../components/home/FollowSection.astro';
-import { SITE } from '../config/site';
-import { TOPICS, topicPath } from '../config/taxonomy';
-import { getJourney, getMoments, getProjects, getStories, getVideos, latestItems, storyForVideo, topicCounts, videoUrl } from '../lib/content';
+import Media from '../components/Media.astro';
+import { SITE, visibleSocial } from '../config/site';
+import { getProjects } from '../lib/content';
+import { BRAND_ICON, ICON } from '../lib/icons';
+import t100 from '../assets/media/t100-nahaufnahme.jpg';
+import wool from '../assets/media/stanley-merinowolle.jpg';
 
-const [stories, videos, moments, projects, journey, latest, topics] = await Promise.all([
-  getStories(),
-  getVideos(),
-  getMoments(),
-  getProjects(),
-  getJourney(),
-  latestItems(4),
-  topicCounts(),
-]);
-const [leadVideo, ...moreVideos] = videos;
-const leadStory = leadVideo ? await storyForVideo(leadVideo.id) : undefined;
+const projects = await getProjects();
 const featuredProjects = projects.filter((p) => p.data.featured);
+const social = visibleSocial();
+const sourcing = projects.find((p) => p.id === 'kunz-sourcing');
+const SOURCING_POINTS = [
+  { t: 'Weiderindfleisch', d: 'Für Importeure, Großhändler und Verarbeiter – bezogen über EU-zugelassene Exportbetriebe in Uruguay.' },
+  { t: 'Merinowolle', d: 'Als Kammzug (Tops) und gewaschene Wolle, direkt am Ursprung beschafft.' },
+  { t: 'Ansprechpartner vor Ort', d: 'Ich begleite Beschaffung und Abwicklung in Uruguay – ein fester Kontakt für Käufer in Europa.' },
+];
+
+const FACTS = [
+  { k: 'Sitz', v: 'Uruguay' },
+  { k: 'In Uruguay seit', v: '2022' },
+  { k: 'Ausbildung', v: 'Anlagenmechaniker, Chemieindustrie' },
+  { k: 'Dachmarke', v: 'Kunz Global' },
+];
 ---
 
 <BaseLayout title={SITE.name} description={SITE.description} path="/" overlayHeader>
-  <HomeHero
-    latest={latest}
-    primaryHref={leadVideo ? videoUrl(leadVideo) : '/videos/'}
-    primaryLabel={leadVideo ? 'Neuestes Video' : 'Videos ansehen'}
-  />
+  <BusinessHero projects={featuredProjects} />
 
-  {leadVideo && <LatestVideo video={leadVideo} story={leadStory} more={moreVideos.slice(0, 3)} />}
-
-  <StoriesSection stories={stories} />
-
-  {moments.length > 0 && <MomentsRail moments={moments.slice(0, 10)} />}
+  {
+    sourcing && (
+      <section id="sourcing" class="section sourcing" aria-labelledby="sourcing-title">
+        <div class="container s-grid">
+          <div class="s-text" data-reveal>
+            <p class="eyebrow">Schwerpunkt</p>
+            <h2 id="sourcing-title" class="s-title">
+              Kunz <em>Sourcing.</em>
+            </h2>
+            <p class="s-lead">{sourcing.data.summary}</p>
+            <ul role="list" class="s-points">
+              {SOURCING_POINTS.map((pt) => (
+                <li>
+                  <strong>{pt.t}</strong>
+                  <span>{pt.d}</span>
+                </li>
+              ))}
+            </ul>
+            <div class="s-ctas">
+              <a class="btn btn-sun" href={`mailto:${SITE.author.email}?subject=${encodeURIComponent('Anfrage Kunz Sourcing')}`} data-track="contact-mail-sourcing">
+                <span set:html={ICON.mail} />
+                Anfrage senden
+              </a>
+              {sourcing.data.url && (
+                <a class="btn btn-ghost" href={sourcing.data.url} rel="noopener" target="_blank" data-track="outbound-project-kunz-sourcing">
+                  kunzsourcing.com <span set:html={ICON.arrowUpRight} />
+                </a>
+              )}
+            </div>
+          </div>
+          <div class="s-media frame" data-reveal style="--reveal-delay: 1">
+            <Media src={wool} alt="Stanley Kunz hält einen großen Strang gekämmter Merinowolle vor einer Palme." sizes="(min-width: 960px) 38vw, 100vw" position="50% 30%" />
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   <ProjectsList projects={featuredProjects} />
 
-  <JourneyTeaser entries={journey} />
-
-  <section class="section-tight topics" aria-labelledby="topics-title">
-    <div class="container">
-      <div class="topics-inner">
-        <h2 id="topics-title" class="topics-title">Themen</h2>
-        <ul role="list" class="chips">
+  <section class="section surface-paper-2 profile" aria-labelledby="profile-title">
+    <div class="container p-grid">
+      <div class="p-media frame" data-reveal>
+        <Media src={t100} alt="Nahaufnahme einer großen Agrardrohne auf einem Feldweg in Uruguay." sizes="(min-width: 960px) 40vw, 100vw" position="50% 50%" />
+      </div>
+      <div class="p-text" data-reveal style="--reveal-delay: 1">
+        <p class="eyebrow">Profil</p>
+        <h2 id="profile-title" class="p-title">Vor Ort in <em>Uruguay.</em></h2>
+        <p class="p-lead">
+          Ich komme aus Deutschland, habe in der Industrie gelernt und lebe seit 2022 in Uruguay. Hier habe ich mich auf das
+          konzentriert, was das Land ausmacht: die Landwirtschaft. Erst mit Agrardrohnen im Feld, dann mit Software für
+          Agrar-Dienstleister und heute mit dem Handel zwischen Uruguay und Europa.
+        </p>
+        <dl class="facts">
           {
-            topics.map((t) => (
-              <li>
-                <a class="chip" href={topicPath(t.id)}>
-                  {TOPICS[t.id].label} <span class="count">{t.count}</span>
-                </a>
-              </li>
+            FACTS.map((f) => (
+              <div>
+                <dt>{f.k}</dt>
+                <dd>{f.v}</dd>
+              </div>
             ))
           }
-        </ul>
+        </dl>
+        <a class="link-arrow" href="/ueber-mich/">Mehr über mich <span set:html={ICON.arrow} /></a>
       </div>
     </div>
   </section>
 
-  <FollowSection />
+  <section id="kontakt" class="section surface-night grain contact" aria-labelledby="contact-title">
+    <div class="container c-grid">
+      <div>
+        <p class="eyebrow">Kontakt</p>
+        <h2 id="contact-title" class="c-title">Lassen Sie uns <em>sprechen.</em></h2>
+        <p class="c-text">
+          Für Anfragen zu Rindfleisch und Merinowolle aus Uruguay, Drohneneinsätzen, Agralon oder Kooperationen erreichen Sie mich am
+          besten per E-Mail.
+        </p>
+        <a class="btn btn-sun" href={`mailto:${SITE.author.email}`} data-track="contact-mail-home">
+          <span set:html={ICON.mail} />
+          {SITE.author.email}
+        </a>
+      </div>
+      <ul role="list" class="nets">
+        {
+          social.map((s) => (
+            <li>
+              <a href={s.url} rel="noopener me" target="_blank" data-track={`outbound-${s.id}-contact`}>
+                <span class="n-icon" set:html={BRAND_ICON[s.id]} />
+                <span class="n-label">{s.label}</span>
+                <span class="n-handle">{s.handle}</span>
+              </a>
+            </li>
+          ))
+        }
+        <li>
+          <a href={SITE.organization.url} rel="noopener" target="_blank" data-track="outbound-kunzglobal-contact">
+            <span class="n-icon" set:html={ICON.arrowUpRight} />
+            <span class="n-label">{SITE.organization.name}</span>
+            <span class="n-handle">kunzglobal.com</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
 </BaseLayout>
 
 <style>
-  .topics {
-    border-top: 1px solid var(--rule);
+  .sourcing {
     border-bottom: 1px solid var(--rule);
   }
-  .topics-inner {
+  .s-grid {
     display: grid;
-    gap: 1.25rem;
+    gap: clamp(2rem, 4vw, 4.5rem);
     align-items: center;
   }
-  @media (min-width: 900px) {
-    .topics-inner {
-      grid-template-columns: 12rem 1fr;
+  @media (min-width: 960px) {
+    .s-grid {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
     }
   }
-  .topics-title {
-    font-size: var(--fs-h3);
+  .s-title {
+    font-size: var(--fs-h1);
+    margin-top: 0.6rem;
   }
-  .chips {
+  .s-lead {
+    margin-top: 1.2rem;
+    max-width: 38rem;
+    color: var(--text-soft);
+    font-size: var(--fs-lead);
+  }
+  .s-points {
+    display: grid;
+    gap: 1.1rem;
+    margin-block: 2rem;
+    max-width: 38rem;
+    border-top: 1px solid var(--rule-strong);
+    padding-top: 1.4rem;
+  }
+  .s-points li {
+    display: grid;
+    gap: 0.2rem;
+    padding-left: 1.1rem;
+    border-left: 3px solid var(--sun);
+  }
+  .s-points span {
+    color: var(--text-soft);
+  }
+  .s-ctas {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.75rem;
+  }
+  .s-ctas .btn :global(svg) {
+    width: 1em;
+  }
+  .s-media {
+    aspect-ratio: 4 / 5;
+    box-shadow: var(--frame-shadow);
+  }
+  .p-grid {
+    display: grid;
+    gap: clamp(2rem, 4vw, 4.5rem);
+    align-items: center;
+  }
+  @media (min-width: 960px) {
+    .p-grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    }
+  }
+  .p-media {
+    aspect-ratio: 4 / 3;
+    box-shadow: var(--frame-shadow);
+  }
+  .p-title {
+    font-size: var(--fs-h2);
+    margin-top: 0.6rem;
+  }
+  .p-lead {
+    margin-top: 1.2rem;
+    max-width: 36rem;
+    color: var(--text-soft);
+    font-size: var(--fs-lead);
+  }
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: 1rem 2rem;
+    margin-block: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule-strong);
+  }
+  .facts dt {
+    font-size: var(--fs-meta);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-mute);
+  }
+  .facts dd {
+    margin: 0.3rem 0 0;
+    font-weight: 600;
+  }
+
+  .c-grid {
+    display: grid;
+    gap: 3rem;
+    align-items: end;
+  }
+  @media (min-width: 960px) {
+    .c-grid {
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 5rem;
+    }
+  }
+  .c-title {
+    font-size: var(--fs-h1);
+    margin-top: 0.6rem;
+    color: var(--on-night);
+  }
+  .c-text {
+    margin-block: 1.2rem 2rem;
+    max-width: 34rem;
+    color: var(--on-night-soft);
+    font-size: var(--fs-lead);
+  }
+  .contact .btn :global(svg) {
+    width: 1.05em;
+  }
+  .nets {
+    border-top: 1px solid var(--rule-night-strong);
+  }
+  .nets li {
+    border-bottom: 1px solid var(--rule-night);
+  }
+  .nets a {
+    display: grid;
+    grid-template-columns: 1.6rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.9rem;
+    min-height: 64px;
+    text-decoration: none;
+    color: var(--on-night);
+  }
+  .n-icon :global(svg) {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  .n-label {
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+  .n-handle {
+    color: var(--on-night-mute);
+    font-size: var(--fs-small);
+  }
+  .nets a:hover .n-label {
+    text-decoration: underline;
+    text-decoration-color: var(--sun);
   }
 </style>

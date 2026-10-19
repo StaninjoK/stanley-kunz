@@ -6,15 +6,15 @@ import StoryCard from '../components/cards/StoryCard.astro';
 const stories = (await getStories()).slice(0, 2);
 ---
 
-<BaseLayout title="Seite nicht gefunden" description="Diese Seite gibt es nicht (mehr). Zurück zu den Videos, Stories und Projekten von Stanley Kunz aus Uruguay." path="/404/" noindex>
+<BaseLayout title="Seite nicht gefunden" description="Diese Seite gibt es nicht (mehr). Zurück zur Startseite und zu den Unternehmen von Stanley Kunz in Uruguay." path="/404/" noindex>
   <section class="container nf">
     <p class="eyebrow">404</p>
     <h1 class="t">Hier ist <em>nur Weide.</em></h1>
     <p class="lead">Diese Seite gibt es nicht – oder nicht mehr. Vielleicht hilft einer dieser Wege weiter:</p>
     <p class="links">
       <a class="btn btn-sun" href="/">Zur Startseite</a>
-      <a class="btn btn-ghost" href="/stories/">Stories</a>
-      <a class="btn btn-ghost" href="/videos/">Videos</a>
+      <a class="btn btn-ghost" href="/projekte/">Unternehmen</a>
+      <a class="btn btn-ghost" href="/ueber-mich/">Über mich</a>
     </p>
     {
       stories.length > 0 && (
