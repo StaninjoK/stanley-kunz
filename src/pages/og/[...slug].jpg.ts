@@ -6,7 +6,6 @@ import { TOPICS, type TopicId, TOPIC_IDS } from '../../config/taxonomy';
 import { SITE } from '../../config/site';
 import portrait from '../../assets/media/stanley-portrait.jpg';
 import campo from '../../assets/media/stanley-campo-erzaehlt.jpg';
-import drone from '../../assets/media/stanley-mit-drohne.jpg';
 import calf from '../../assets/media/kalb-neugierig.jpg';
 import dogs from '../../assets/media/hunde-laufen.jpg';
 import wool from '../../assets/media/stanley-merinowolle.jpg';
@@ -14,11 +13,11 @@ import wool from '../../assets/media/stanley-merinowolle.jpg';
 type Entry = { kind: 'og'; opts: OgOptions } | { kind: 'photo'; image: ImageMetadata; w: number; h: number; position?: string };
 
 const PAGES: Record<string, OgOptions> = {
-  default: { title: SITE.tagline, image: campo, imagePosition: '50% 25%' },
-  'pages/ueber-mich': { title: 'Mit 19 nach Uruguay. Und dann?', kicker: 'Über mich', image: campo, imagePosition: '50% 25%' },
+  default: { title: SITE.tagline, image: portrait, imagePosition: '50% 25%' },
+  'pages/ueber-mich': { title: 'Unternehmer in Uruguay, Gründer von Kunz Global', kicker: 'Profil', image: portrait, imagePosition: '50% 25%' },
   'pages/videos': { title: 'Videos aus meinem Leben in Uruguay', kicker: 'Videos', image: calf, imagePosition: '50% 40%' },
   'pages/stories': { title: 'Stories: aufgeschrieben, zum Nachlesen', kicker: 'Stories', image: campo, imagePosition: '50% 25%' },
-  'pages/projekte': { title: 'Was ich gerade aufbaue – und warum', kicker: 'Projekte', image: drone, imagePosition: '50% 60%' },
+  'pages/projekte': { title: 'Handel, Agrardrohnen und Software aus Uruguay', kicker: 'Unternehmen', image: wool, imagePosition: '50% 30%' },
   'pages/weg': { title: 'Der Weg: von der Ausbildung zum eigenen Campo', kicker: 'Der Weg', image: wool, imagePosition: '50% 30%' },
   'pages/momente': { title: 'Was zwischendurch passiert', kicker: 'Momente', image: dogs, imagePosition: '50% 50%' },
   'pages/themen': { title: 'Alle Themen', kicker: 'Themen', image: calf, imagePosition: '50% 40%' },
