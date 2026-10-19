@@ -1,0 +1,312 @@
+---
+import Media from '../Media.astro';
+import { ICON } from '../../lib/icons';
+import type { Project } from '../../lib/content';
+import portrait from '../../assets/media/stanley-portrait.jpg';
+import sheep from '../../assets/media/schafe-weide.jpg';
+import cattle from '../../assets/media/kaelber-weide.jpg';
+
+interface Props {
+  projects: Project[];
+}
+const { projects } = Astro.props;
+---
+
+<section class="hero surface-night grain" aria-labelledby="hero-title">
+  <div class="container hero-grid">
+    <div class="copy">
+      <p class="eyebrow hero-eyebrow">Gründer von Kunz Global · Uruguay</p>
+      <h1 id="hero-title" class="name">
+        <span class="line">Stanley</span>
+        <span class="line"><em>Kunz</em></span>
+      </h1>
+      <p class="lead">
+        Mit Kunz Sourcing liefere ich Weiderindfleisch und Merinowolle aus Uruguay an Käufer in Europa – direkt vom Ursprung, mit
+        festem Ansprechpartner vor Ort.
+      </p>
+      <div class="ctas">
+        <a class="btn btn-sun" href="#sourcing">
+          Kunz Sourcing
+          <span set:html={ICON.arrow} />
+        </a>
+        <a class="btn btn-ghost" href="#kontakt">Kontakt aufnehmen</a>
+      </div>
+    </div>
+
+    <div class="stack" aria-hidden="true">
+      <figure class="frame f-main">
+        <Media src={portrait} alt="" sizes="(min-width: 900px) 28vw, 100vw" widths={[480, 720, 960, 1280]} position="50% 22%" priority />
+      </figure>
+      <figure class="frame f-left">
+        <Media src={sheep} alt="" sizes="(min-width: 900px) 15vw, 1px" widths={[360, 540]} position="50% 50%" />
+        <figcaption class="cap">Wolle</figcaption>
+      </figure>
+      <figure class="frame f-right">
+        <Media src={cattle} alt="" sizes="(min-width: 900px) 17vw, 1px" widths={[360, 540, 720]} position="50% 35%" />
+        <figcaption class="cap">Weiderind</figcaption>
+      </figure>
+    </div>
+  </div>
+
+  {
+    projects.length > 0 && (
+      <div class="ticker">
+        <div class="container ticker-inner">
+          <p class="ticker-label">Unternehmen</p>
+          <ul role="list">
+            {projects.map((p) => (
+              <li>
+                <a href={`/projekte/#${p.id}`}>
+                  <span class="t">{p.data.name}</span>
+                  <span class="kind">{p.data.category}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    )
+  }
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 100svh;
+    padding-top: calc(var(--header-h) + clamp(1rem, 4vh, 3rem));
+    overflow: hidden;
+  }
+  /* mobile: the portrait becomes the full-bleed background */
+  @media (max-width: 899px) {
+    .stack {
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+    }
+    .stack .f-main {
+      position: absolute;
+      inset: 0;
+      border-radius: 0;
+    }
+    .stack .f-main::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(180deg, rgba(14, 13, 11, 0.55) 0%, rgba(14, 13, 11, 0.05) 22%, rgba(14, 13, 11, 0.6) 40%, rgba(14, 13, 11, 0.92) 58%, rgba(14, 13, 11, 0.98) 100%);
+    }
+    .stack .f-left,
+    .stack .f-right {
+      display: none;
+    }
+    .copy {
+      text-shadow: 0 1px 18px rgba(0, 0, 0, 0.45);
+    }
+  }
+  .hero-grid {
+    flex: 1;
+    display: grid;
+    align-items: end;
+    padding-bottom: clamp(2rem, 1rem + 4vh, 4rem);
+  }
+  .copy {
+    max-width: 44rem;
+  }
+  .hero-eyebrow {
+    color: var(--on-night-soft);
+    margin-bottom: 1.4rem;
+  }
+  .name {
+    font-size: var(--fs-mega);
+    font-weight: 420;
+    line-height: 0.88;
+    letter-spacing: -0.045em;
+    color: var(--on-night);
+  }
+  .name .line {
+    display: block;
+  }
+  .name em {
+    font-weight: 330;
+    padding-left: 0.04em;
+  }
+  .lead {
+    margin-top: clamp(1.2rem, 0.8rem + 1.5vw, 2rem);
+    max-width: 36rem;
+    color: var(--on-night-soft);
+    font-size: var(--fs-lead);
+  }
+  .ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: clamp(1.6rem, 1rem + 2vw, 2.5rem);
+  }
+  .ctas .btn-ghost {
+    --btn-fg: var(--on-night);
+    border-color: var(--rule-night-strong);
+  }
+  .ctas .btn-ghost:hover {
+    border-color: var(--on-night);
+  }
+  .btn :global(svg) {
+    width: 0.95em;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .name .line,
+    .hero-eyebrow,
+    .lead,
+    .ctas {
+      animation: rise 1.1s var(--ease-out) both;
+    }
+    .name .line:nth-child(2) {
+      animation-delay: 90ms;
+    }
+    .lead {
+      animation-delay: 220ms;
+    }
+    .ctas {
+      animation-delay: 320ms;
+    }
+    .stack .frame {
+      animation: frame-in 1.4s var(--ease-out) both;
+    }
+    .stack .f-left {
+      animation-delay: 150ms;
+    }
+    .stack .f-right {
+      animation-delay: 300ms;
+    }
+  }
+  @keyframes rise {
+    from {
+      transform: translateY(18px);
+    }
+  }
+  @keyframes frame-in {
+    from {
+      opacity: 0;
+      transform: translateY(60px) scale(0.97);
+    }
+  }
+
+  @media (min-width: 900px) {
+    .hero {
+      min-height: min(100svh, 1000px);
+    }
+    .hero-grid {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 6fr);
+      gap: clamp(2rem, 4vw, 5rem);
+      align-items: center;
+    }
+    .stack {
+      position: relative;
+      height: min(74svh, 760px);
+    }
+    .stack .frame {
+      position: absolute;
+      margin: 0;
+      box-shadow: var(--frame-shadow);
+      background: var(--night-3);
+    }
+    .f-main {
+      right: 10%;
+      top: 0;
+      width: 62%;
+      height: 88%;
+      z-index: 2;
+    }
+    .f-left {
+      left: 0;
+      bottom: 4%;
+      width: 32%;
+      height: 46%;
+      z-index: 3;
+    }
+    .f-right {
+      right: 0;
+      bottom: -2%;
+      width: 40%;
+      height: 30%;
+      z-index: 3;
+    }
+    .cap {
+      position: absolute;
+      left: 0.6rem;
+      bottom: 0.6rem;
+      padding: 0.3rem 0.55rem;
+      border-radius: 4px;
+      background: rgba(10, 10, 8, 0.6);
+      backdrop-filter: blur(6px);
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      z-index: 2;
+    }
+  }
+  @media (max-width: 899px) {
+    .cap {
+      display: none;
+    }
+  }
+
+  /* company ticker */
+  .ticker {
+    border-top: 1px solid var(--rule-night);
+    background: rgba(10, 10, 8, 0.35);
+    backdrop-filter: blur(8px);
+  }
+  .ticker-inner {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    min-height: 64px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .ticker-inner::-webkit-scrollbar {
+    display: none;
+  }
+  .ticker-label {
+    flex: none;
+    font-size: var(--fs-meta);
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--sun);
+  }
+  .ticker ul {
+    display: flex;
+    gap: 2rem;
+  }
+  .ticker li {
+    flex: none;
+  }
+  .ticker a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 44px;
+    text-decoration: none;
+    color: var(--on-night);
+  }
+  .ticker .t {
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  .ticker .kind {
+    font-size: var(--fs-meta);
+    font-weight: 650;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--on-night-mute);
+  }
+  .ticker a:hover .t {
+    text-decoration: underline;
+    text-decoration-color: var(--sun);
+  }
+</style>
