@@ -7,6 +7,6 @@ status: aktiv
 summary: "Digitale Produkte, Software und Automatisierung – für Unternehmen und für die eigenen Firmen der Gruppe."
 url: "https://kunzsystems.com/"
 topics: [technologie]
-order: 6
+order: 5
 ---
 Viele meiner Ideen entstehen aus Problemen in meinen eigenen Firmen. Kunz Systems ist der Ort, an dem daraus Software wird.

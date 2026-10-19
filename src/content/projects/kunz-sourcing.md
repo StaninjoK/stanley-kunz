@@ -11,7 +11,9 @@ image:
   alt: "Stanley Kunz hält einen großen Strang gekämmter Merinowolle vor einer Palme."
   position: "50% 30%"
 topics: [handel, uruguay]
-order: 3
+order: 1
 featured: true
 ---
 Uruguay ist ein Agrarland, Europa ein großer Abnehmer. Mit Kunz Sourcing verbinde ich beides: Weiderindfleisch aus Uruguay für Importeure, Großhändler und Verarbeiter, bezogen über EU-zugelassene Exportbetriebe, dazu Merinowolle als Kammzug und gewaschene Wolle.
+
+Als Ansprechpartner vor Ort in Uruguay begleite ich Beschaffung und Abwicklung – Käufer in Europa haben einen festen Kontakt am Ursprung.
