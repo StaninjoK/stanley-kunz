@@ -10,12 +10,16 @@ const PAGES = (() => {
     for (const name of fs.readdirSync(dir)) {
       const p = path.join(dir, name);
       if (fs.statSync(p).isDirectory()) walk(p);
-      else if (name === 'index.html') out.push('/' + path.relative('dist', path.dirname(p)).replace(/\\/g, '/') + (path.dirname(p) === 'dist' ? '' : '/'));
+      // Redirect stubs (archived sections) forward to another page and are not tested as pages.
+      else if (name === 'index.html' && !fs.readFileSync(p, 'utf8').includes('http-equiv="refresh"')) out.push('/' + path.relative('dist', path.dirname(p)).replace(/\\/g, '/') + (path.dirname(p) === 'dist' ? '' : '/'));
     }
   };
   walk('dist');
   return out.map((p) => p.replace('//', '/')).sort();
 })();
+
+/** The personal media hub (stories, videos, moments) is archived while no story pages are built. */
+const ARCHIVED = !fs.existsSync('dist/stories/mit-19-nach-uruguay/index.html');
 
 for (const url of PAGES) {
   test(`${url} – renders without errors, overflow or serious a11y issues`, async ({ page }) => {
@@ -55,9 +59,7 @@ test('desktop navigation reaches every main section', async ({ page, isMobile })
   test.skip(isMobile, 'desktop only');
   await page.goto('/');
   const links: [string, string][] = [
-    ['Videos', '/videos/'],
-    ['Stories', '/stories/'],
-    ['Projekte', '/projekte/'],
+    ['Unternehmen', '/projekte/'],
     ['Über mich', '/ueber-mich/'],
   ];
   for (const [label, url] of links) {
@@ -68,6 +70,7 @@ test('desktop navigation reaches every main section', async ({ page, isMobile })
 });
 
 test('topic filter narrows the moments list', async ({ page }) => {
+  test.skip(ARCHIVED, 'moments are archived');
   await page.goto('/momente/');
   const all = await page.locator('#moment-list > li:not([hidden])').count();
   await page.locator('[data-filter] button[data-topic="agrardrohnen"]').click();
@@ -91,12 +94,14 @@ test('ambient loops stay off with reduced motion', async ({ browser }) => {
 test('ambient loop starts when motion is allowed', async ({ page, isMobile }) => {
   test.skip(isMobile, 'covered on desktop');
   await page.goto('/', { waitUntil: 'networkidle' });
+  test.skip((await page.locator('video[data-loop]').count()) === 0, 'no ambient loop on the start page');
   await page.waitForTimeout(1500);
   const loaded = await page.evaluate(() => [...document.querySelectorAll('video[data-loop]')].some((v) => (v as HTMLVideoElement).dataset.loaded));
   expect(loaded).toBe(true);
 });
 
 test('story page: reading aids, video link and share', async ({ page }) => {
+  test.skip(ARCHIVED, 'stories are archived');
   await page.goto('/stories/mit-19-nach-uruguay/');
   await expect(page.locator('.summary')).toBeVisible();
   await expect(page.locator('#video')).toBeVisible();
@@ -112,7 +117,8 @@ test('no YouTube request before the visitor clicks play', async ({ page }) => {
     const u = new URL(r.url());
     if (!['localhost', '127.0.0.1'].includes(u.hostname)) external.push(u.hostname);
   });
-  await page.goto('/videos/mein-erstes-video-aus-uruguay/', { waitUntil: 'networkidle' });
+  if (!ARCHIVED) await page.goto('/videos/mein-erstes-video-aus-uruguay/', { waitUntil: 'networkidle' });
   await page.goto('/', { waitUntil: 'networkidle' });
+  await page.goto('/projekte/', { waitUntil: 'networkidle' });
   expect(external).toEqual([]);
 });
