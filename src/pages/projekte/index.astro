@@ -24,16 +24,16 @@ const host = (url?: string) => (url ? new URL(url).hostname.replace(/^www\./, ''
 ---
 
 <BaseLayout
-  title="Projekte"
-  description="Was Stanley Kunz in Uruguay aufbaut – Agrardrohnen, Agrarsoftware, Handel mit Europa und mehr. Aus persönlicher Sicht: was es ist, warum es das gibt, wo es steht."
+  title="Unternehmen"
+  description="Die Unternehmen von Stanley Kunz in Uruguay: Kunz Sourcing (Rindfleisch und Merinowolle für Europa), Agralon (Agrarsoftware), Kunz Agrotech (Agrardrohnen) und weitere unter Kunz Global."
   path="/projekte/"
   ogImage="/og/pages/projekte.jpg"
-  schema={[breadcrumbSchema([{ name: 'Start', path: '/' }, { name: 'Projekte', path: '/projekte/' }])]}
+  schema={[breadcrumbSchema([{ name: 'Start', path: '/' }, { name: 'Unternehmen', path: '/projekte/' }])]}
 >
   <PageHeader
-    eyebrow="Projekte"
-    title="Was ich <em>aufbaue.</em>"
-    intro="Das hier ist keine Firmenbroschüre – die offiziellen Seiten sind jeweils verlinkt. Hier steht, was ich persönlich aufbaue, warum es das gibt und wo es gerade steht."
+    eyebrow="Unternehmen"
+    title="Woran ich <em>arbeite.</em>"
+    intro="Meine Unternehmen laufen unter der Dachmarke Kunz Global zusammen. Hier ein Überblick – die offiziellen Seiten sind jeweils verlinkt."
   />
 
   <div class="container featured">
@@ -84,8 +84,8 @@ const host = (url?: string) => (url ? new URL(url).hostname.replace(/^www\./, ''
           <h2 id="others-title">Weitere <em>Unternehmen.</em></h2>
         </div>
         <p>
-          Die Details zu allen Firmen stehen auf <a href={SITE.organization.url} rel="noopener">kunzglobal.com</a>. Über einzelne werde ich
-          erzählen, wenn es etwas Echtes zu erzählen gibt.
+          Die Details zu allen Firmen stehen auf <a href={SITE.organization.url} rel="noopener">kunzglobal.com</a>. Für Anfragen zu einem der
+          Projekte: <a href={`mailto:${SITE.author.email}`}>{SITE.author.email}</a>.
         </p>
       </header>
       <ul role="list" class="o-grid">
