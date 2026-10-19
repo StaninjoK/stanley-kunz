@@ -11,6 +11,16 @@ export type JourneyEntry = CollectionEntry<'journey'>;
 /** Build time. Content with a future publishDate becomes visible with the next (scheduled) build. */
 export const BUILD_TIME = new Date(process.env.BUILD_TIME ?? Date.now());
 
+/**
+ * Business mode (since 2026-10): the site is Stanley's personal business page. The personal media hub
+ * (stories, videos, moments, the journey timeline) is archived: the files stay in src/content and in Git,
+ * but nothing of it is built or linked. Set to false to bring the archive back online.
+ */
+export const PERSONAL_ARCHIVED = true;
+
+/** Projects that belong to the personal media hub and are hidden while it is archived. */
+const ARCHIVED_PROJECTS = new Set(['youtube-kanal']);
+
 export interface FeedVideo {
   id: string;
   title: string;
@@ -27,12 +37,14 @@ export const youtubeFeed = (): FeedVideo[] => FEED.videos ?? [];
 export const isLiveStory = (s: Story): boolean => s.data.status === 'published' && s.data.publishDate <= BUILD_TIME;
 
 export async function getStories(): Promise<Story[]> {
+  if (PERSONAL_ARCHIVED) return [];
   const all = await getCollection('stories', (s) => isLiveStory(s) && s.data.lang === 'de');
   return all.sort((a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime());
 }
 
 /** Stories that keep their URL but are no longer listed (status: archived). */
 export async function getArchivedStories(): Promise<Story[]> {
+  if (PERSONAL_ARCHIVED) return [];
   return getCollection('stories', (s) => s.data.status === 'archived');
 }
 
@@ -45,6 +57,7 @@ export const isPublishedVideo = (v: Video): boolean => v.data.status === 'publis
 export const isVisibleVideo = (v: Video): boolean => isPublishedVideo(v) || (v.data.status === 'upcoming' && v.data.announce);
 
 export async function getVideos(): Promise<Video[]> {
+  if (PERSONAL_ARCHIVED) return [];
   const all = await getCollection('videos', (v) => isVisibleVideo(v) && v.data.lang === 'de');
   // Published first (newest first), then announced upcoming videos.
   return all.sort((a, b) => {
@@ -94,16 +107,18 @@ export function durationLabel(iso?: string): string | undefined {
 /* ---------------- moments, projects, journey ---------------- */
 
 export async function getMoments(): Promise<Moment[]> {
+  if (PERSONAL_ARCHIVED) return [];
   const all = await getCollection('moments', (m) => m.data.risk !== 'high' && m.data.date <= BUILD_TIME && m.data.lang === 'de');
   return all.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 }
 
 export async function getProjects(): Promise<Project[]> {
-  const all = await getCollection('projects');
+  const all = await getCollection('projects', (p) => !(PERSONAL_ARCHIVED && ARCHIVED_PROJECTS.has(p.id)));
   return all.sort((a, b) => a.data.order - b.data.order);
 }
 
 export async function getJourney(): Promise<JourneyEntry[]> {
+  if (PERSONAL_ARCHIVED) return [];
   const all = await getCollection('journey');
   return all.sort((a, b) => a.data.date.localeCompare(b.data.date));
 }
