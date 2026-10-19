@@ -8,9 +8,9 @@ export const SITE = {
   url: SITE_URL,
   name: 'Stanley Kunz',
   /** Short positioning, used in <title> suffixes, feeds and structured data. */
-  tagline: 'Ein Deutscher baut in Uruguay ein Leben und Unternehmen auf – und dokumentiert, was dabei wirklich passiert.',
+  tagline: 'Rindfleisch und Merinowolle aus Uruguay für Europa – Unternehmer und Gründer von Kunz Global.',
   description:
-    'Mit 19 nach Uruguay ausgewandert: Stanley Kunz dokumentiert in Videos und Stories, was beim Aufbau von Leben, Landwirtschaft und Unternehmen wirklich passiert.',
+    'Stanley Kunz ist Unternehmer in Uruguay: Mit Kunz Sourcing liefert er Weiderindfleisch und Merinowolle an Käufer in Europa. Dazu Agrarsoftware und Agrardrohnen.',
   locale: 'de-DE',
   ogLocale: 'de_DE',
   themeColor: '#14130f',
@@ -22,7 +22,7 @@ export const SITE = {
     jobTitle: 'Gründer von Kunz Global',
     nationality: 'Deutschland',
     homeLocation: 'Uruguay',
-    knowsLanguage: ['de', 'es'],
+    knowsLanguage: ['de'],
     email: 'stan@kunzglobal.com',
   },
   /** Parent brand. Linked, never duplicated. */
@@ -79,7 +79,13 @@ export const SOCIAL: SocialLink[] = [
   { id: 'linkedin', label: 'LinkedIn', handle: 'Stanley Kunz', url: 'https://www.linkedin.com/in/stanley-kunz-2aa106379/', verified: true },
 ];
 
-export const visibleSocial = (): SocialLink[] => SOCIAL.filter((s) => s.verified);
+/**
+ * Business mode (since 2026-10): only professional networks are shown. The personal channels above stay
+ * listed (and verified) so they can be switched back on by removing their id from this set.
+ */
+const HIDDEN_SOCIAL = new Set<SocialId>(['youtube', 'instagram', 'threads', 'facebook', 'bluesky', 'pinterest', 'tiktok', 'x', 'snapchat']);
+
+export const visibleSocial = (): SocialLink[] => SOCIAL.filter((s) => s.verified && !HIDDEN_SOCIAL.has(s.id));
 
 /**
  * Privacy-friendly analytics. Nothing is loaded while `provider` is null.
