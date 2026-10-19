@@ -9,17 +9,12 @@ const { overlay = false } = Astro.props;
 const path = Astro.url.pathname;
 
 const NAV = [
-  { href: '/videos/', label: 'Videos' },
-  { href: '/stories/', label: 'Stories' },
-  { href: '/projekte/', label: 'Projekte' },
+  { href: '/projekte/', label: 'Unternehmen' },
   { href: '/ueber-mich/', label: 'Über mich' },
+  { href: '/#kontakt', label: 'Kontakt' },
 ];
-const MORE = [
-  { href: '/weg/', label: 'Der Weg' },
-  { href: '/momente/', label: 'Momente' },
-  { href: '/themen/', label: 'Themen' },
-];
-const isActive = (href: string) => path === href || path.startsWith(href);
+const MORE: { href: string; label: string }[] = [];
+const isActive = (href: string) => !href.includes('#') && (path === href || path.startsWith(href));
 const social = visibleSocial();
 ---
 
@@ -45,9 +40,9 @@ const social = visibleSocial();
     </nav>
 
     <div class="actions">
-      <a class="yt" href={SITE.youtube.channelUrl} rel="noopener" target="_blank" data-track="outbound-youtube-header" aria-label="YouTube-Kanal von Stanley Kunz">
-        <span class="yt-icon" set:html={BRAND_ICON.youtube} />
-        <span class="yt-label">YouTube</span>
+      <a class="yt" href={`mailto:${SITE.author.email}`} data-track="contact-mail-header" aria-label={`E-Mail an Stanley Kunz: ${SITE.author.email}`}>
+        <span class="yt-icon" set:html={ICON.mail} />
+        <span class="yt-label">Anfrage senden</span>
       </a>
       <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-menu" data-menu-open>
         <span set:html={ICON.menu} />

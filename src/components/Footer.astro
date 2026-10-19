@@ -1,9 +1,10 @@
 ---
 import { SITE, visibleSocial } from '../config/site';
-import { BRAND_ICON, ICON } from '../lib/icons';
-import { BUILD_TIME } from '../lib/content';
+import { ICON } from '../lib/icons';
+import { BUILD_TIME, getProjects } from '../lib/content';
 
 const social = visibleSocial();
+const projects = (await getProjects()).filter((p) => p.data.featured);
 const year = BUILD_TIME.getFullYear();
 ---
 
@@ -12,35 +13,38 @@ const year = BUILD_TIME.getFullYear();
     <div class="top">
       <div class="claim">
         <p class="name">Stanley Kunz</p>
-        <p class="line">Deutschland → Uruguay. Leben, Landwirtschaft, Unternehmen – dokumentiert, während es passiert.</p>
-        <a class="btn btn-sun" href={SITE.youtube.subscribeUrl} rel="noopener" target="_blank" data-track="outbound-youtube-footer">
-          <span set:html={BRAND_ICON.youtube} />
-          Kanal abonnieren
+        <p class="line">Unternehmer in Uruguay. Rindfleisch und Merinowolle für Europa, dazu Software und Agrardrohnen für die Landwirtschaft.</p>
+        <a class="btn btn-sun" href={`mailto:${SITE.author.email}`} data-track="contact-mail-footer">
+          <span set:html={ICON.mail} />
+          Anfrage senden
         </a>
       </div>
 
       <nav class="cols" aria-label="Fußzeile">
         <div>
-          <p class="col-title">Inhalte</p>
+          <p class="col-title">Unternehmen</p>
           <ul role="list">
-            <li><a href="/videos/">Videos</a></li>
-            <li><a href="/stories/">Stories</a></li>
-            <li><a href="/momente/">Momente</a></li>
-            <li><a href="/themen/">Themen</a></li>
+            {
+              projects.map((p) => (
+                <li>
+                  <a href={`/projekte/#${p.id}`}>{p.data.name}</a>
+                </li>
+              ))
+            }
           </ul>
         </div>
         <div>
           <p class="col-title">Über mich</p>
           <ul role="list">
-            <li><a href="/ueber-mich/">Meine Geschichte</a></li>
-            <li><a href="/weg/">Der Weg</a></li>
-            <li><a href="/projekte/">Projekte</a></li>
+            <li><a href="/ueber-mich/">Profil</a></li>
+            <li><a href="/projekte/">Alle Unternehmen</a></li>
             <li><a href={SITE.organization.url} rel="noopener">Kunz Global <span class="ext" set:html={ICON.arrowUpRight} /></a></li>
           </ul>
         </div>
         <div>
-          <p class="col-title">Folgen</p>
+          <p class="col-title">Kontakt</p>
           <ul role="list">
+            <li><a href={`mailto:${SITE.author.email}`}>E-Mail</a></li>
             {
               social.map((s) => (
                 <li>
@@ -50,7 +54,6 @@ const year = BUILD_TIME.getFullYear();
                 </li>
               ))
             }
-            <li><a href="/rss.xml">RSS-Feed</a></li>
           </ul>
         </div>
       </nav>
