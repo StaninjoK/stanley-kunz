@@ -21,8 +21,10 @@ function walk(dir, out = []) {
 
 assert.ok(fs.existsSync(DIST), 'dist/ fehlt – erst `npm run build` ausführen.');
 const files = walk(DIST);
+const isRedirect = (doc) => /<meta http-equiv="refresh"/.test(doc);
 const pages = files.filter((f) => f.endsWith('.html'));
-const html = new Map(pages.map((f) => [f, fs.readFileSync(f, 'utf8')]));
+// Redirect stubs (archived sections, see PERSONAL_ARCHIVED in src/lib/content.ts) are not real pages.
+const html = new Map(pages.map((f) => [f, fs.readFileSync(f, 'utf8')]).filter(([, doc]) => !isRedirect(doc)));
 const rel = (f) => '/' + path.relative(DIST, f).replace(/\\/g, '/').replace(/index\.html$/, '');
 
 const attr = (tag, name) => new RegExp(`${name}="([^"]*)"`).exec(tag)?.[1];
@@ -70,7 +72,6 @@ test('every page: social preview image exists and structured data is valid JSON-
 
 test('stories have Article, Breadcrumb and author markup', () => {
   const stories = [...html].filter(([f]) => /stories[\\/][^\\/]+[\\/]index\.html$/.test(f));
-  assert.ok(stories.length >= 1, 'mindestens eine Story');
   for (const [file, doc] of stories) {
     const ld = JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(doc)[1]);
     const types = ld['@graph'].map((n) => n['@type']);
@@ -96,6 +97,17 @@ test('all images have alt text, no images or scripts from third parties', () => 
       assert.ok((attr(m[0], 'href') ?? '').startsWith('/'), `${page}: externes Stylesheet`);
     }
     assert.ok(!/<iframe/.test(doc), `${page}: iframes nur nach Klick (YouTube-Fassade)`);
+  }
+});
+
+test('redirect stubs point to an existing page and are kept out of the sitemap', () => {
+  const sitemap = files.filter((f) => /sitemap-\d+\.xml$/.test(f)).map((f) => fs.readFileSync(f, 'utf8')).join('');
+  for (const file of pages) {
+    const doc = fs.readFileSync(file, 'utf8');
+    if (!isRedirect(doc)) continue;
+    const target = /content="0;url=([^"]+)"/.exec(doc)?.[1] ?? '';
+    assert.ok(target.startsWith('/') && resolveInternal(target), `${rel(file)}: Weiterleitung auf ${target}`);
+    assert.ok(!sitemap.includes(`<loc>${ORIGIN}${rel(file)}</loc>`), `${rel(file)}: Weiterleitung steht in der Sitemap`);
   }
 });
 
@@ -147,8 +159,11 @@ test('sitemap, robots, RSS and llms.txt', () => {
     else assert.ok(!listed, `${page} ist noindex, steht aber in der Sitemap`);
   }
   const rss = fs.readFileSync(path.join(DIST, 'rss.xml'), 'utf8');
-  assert.match(rss, /<item>/);
-  assert.match(rss, /<link>https:\/\/stanley\.kunzglobal\.com\/stories\//);
+  assert.match(rss, /<channel>/);
+  if (fs.existsSync(path.join(DIST, 'stories')) && fs.readdirSync(path.join(DIST, 'stories')).some((d) => d !== 'index.html')) {
+    assert.match(rss, /<item>/);
+    assert.match(rss, /<link>https:\/\/stanley\.kunzglobal\.com\/stories\//);
+  }
   const llms = fs.readFileSync(path.join(DIST, 'llms.txt'), 'utf8');
   assert.match(llms, /^# Stanley Kunz/);
 });
