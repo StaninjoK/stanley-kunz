@@ -45,7 +45,7 @@ const {
   fullTitle,
 } = Astro.props;
 
-const pageTitle = fullTitle ?? (title === SITE.name ? `${SITE.name} – Auswandern, Unternehmertum und Leben in Uruguay` : `${title} – ${SITE.name}`);
+const pageTitle = fullTitle ?? (title === SITE.name ? `${SITE.name} – Unternehmer in Uruguay, Rindfleisch und Merinowolle für Europa` : `${title} – ${SITE.name}`);
 const canonical = abs(path);
 const ogUrl = ogImage.startsWith('http') ? ogImage : abs(ogImage);
 const ld = graph(websiteSchema(), personSchema(abs('/og/stanley-kunz-portrait.jpg')), ...schema);
